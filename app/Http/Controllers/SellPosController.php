@@ -308,23 +308,22 @@ class SellPosController extends Controller
         if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
             return redirect()->action('CashRegisterController@create');
         }
+        // dd($request->all());
         try {
             $input = $request->except('_token');
             
-            $customer = Contact::find($request->contact_id);             
-            
-            $member_id = $customer->custom_field1;
-            $contact_id = $request->contact_id;
-            $total_payable = $request->final_total;
-            
-            $payment_detail =  reset($request->payment);
-
-            // dd($member_id, $contact_id, $total_payable, $payment_detail);
-
-            $amountDebitFromWallet = $this->amountDebitFromWallet($member_id, $contact_id, $total_payable, $payment_detail);
-
-            if($amountDebitFromWallet['success'] == false){
-                throw new \Exception($amountDebitFromWallet['msg']);
+            if($request->status != 'draft'){
+                $customer = Contact::find($request->contact_id);
+                $member_id = $customer->custom_field1;
+                $contact_id = $request->contact_id;
+                $total_payable = $request->final_total;
+                $payment_detail =  reset($request->payment);
+                if($payment_detail['method'] == "custom_pay_1" || $payment_detail['method'] == "custom_pay_2" || $payment_detail['method'] == "custom_pay_3" || $payment_detail['method'] == "custom_pay_4"){
+                    $amountDebitFromWallet = $this->amountDebitFromWallet($member_id, $contact_id, $total_payable, $payment_detail);
+                    if($amountDebitFromWallet['success'] == false){
+                        throw new \Exception($amountDebitFromWallet['msg']);
+                    }
+                }
             }
             
             $input['is_quotation'] = 0;
@@ -673,30 +672,28 @@ class SellPosController extends Controller
     // ===========================
 
     public function amountDebitFromWallet($member_id, $contact_id, $total_payable, $payment_detail){
-        // dd($member_id, $contact_id, $total_payable, $payment_detail);
+
+        $discount = $payment_detail['amount'];
+
         if ($payment_detail['method'] == "custom_pay_1") {
-            $discount = $payment_detail['amount'];
             $otp = $payment_detail['transaction_no_1'];
             $wallet = 'Product Wallet';
             $url = 'product-wallet-otp';
         }
 
         if ($payment_detail['method'] == "custom_pay_2") {
-            $discount = $payment_detail['amount'];
             $otp = $payment_detail['transaction_no_2'];
             $wallet = 'Purchase Wallet';
             $url = 'purchase-wallet-otp';
         }
 
         if ($payment_detail['method'] == "custom_pay_3") {
-            $discount = $payment_detail['amount'];
             $otp = $payment_detail['transaction_no_3'];
             $wallet = 'Redeem Wallet';
             $url = 'redeem-wallet-otp';
         }
         
         if ($payment_detail['method'] == "custom_pay_4") {
-            $discount = $payment_detail['amount'];
             $otp = $payment_detail['transaction_no_4'];
             $wallet = 'Armada Wallet';
             $url = 'armada-wallet-otp';
@@ -733,16 +730,14 @@ class SellPosController extends Controller
         if($result->success){
             return [
                 'success'=>true,
-                'msg'=> 'Successfully amount debited'
+                'msg'=> $result->message
+            ];
+        }else{
+            return [
+                'success'=>false,
+                'msg'=> $result->message
             ];
         }
-        
-        return [
-            'success'=>false,
-            'msg'=> 'Something went wrong'
-        ];
-
-        
     }
 
     /**

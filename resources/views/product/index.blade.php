@@ -53,7 +53,7 @@
         <div class="col-md-3" id="location_filter">
             <div class="form-group">
                 {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'placeholder' => __('lang_v1.all')]); !!}
+                {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%',]); !!}
             </div>
         </div>
         <div class="col-md-3">
@@ -470,6 +470,10 @@
                         { data: 'product', name: 'p.name' },
                         { data: 'location_name', name: 'l.name' },
                         { data: 'unit_price', name: 'variations.sell_price_inc_tax' },
+                        { data: 'openingstock', name: 'openingstock', searchable: false },
+                        { data: 'purchase_qty', name: 'purchase_qty', searchable: false },
+                        { data: 'sell_qty', name: 'sell_qty', searchable: false },
+                        { data: 'est_qty', name: 'est_qty', searchable: false },
                         { data: 'stock', name: 'stock', searchable: false },
                         @can('view_product_stock_value')
                         { data: 'stock_price', name: 'stock_price', searchable: false },

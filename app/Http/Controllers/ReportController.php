@@ -466,7 +466,7 @@ class ReportController extends Controller
         $brands = Brands::forDropdown($business_id);
         $units = Unit::where('business_id', $business_id)
                             ->pluck('short_name', 'id');
-        $business_locations = BusinessLocation::forDropdown($business_id, true);
+        $business_locations = BusinessLocation::forDropdown($business_id);
 
         return view('report.stock_report')
             ->with(compact('categories', 'brands', 'units', 'business_locations', 'show_manufacturing_data'));
@@ -1069,7 +1069,7 @@ class ReportController extends Controller
         }
 
         $users = User::forDropdown($business_id, false);
-        $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+        $payment_types = $this->transactionUtil->payment_types(null, true, $business_id, '', true);
 
         return view('report.register_report')
                     ->with(compact('users', 'payment_types'));

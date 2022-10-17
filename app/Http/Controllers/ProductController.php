@@ -327,7 +327,7 @@ class ProductController extends Controller
         $taxes = $tax_dropdown['tax_rates'];
 
         $business_locations = BusinessLocation::forDropdown($business_id);
-        $business_locations->prepend(__('lang_v1.none'), 'none');
+        // $business_locations->prepend(__('lang_v1.none'), 'none');
 
         if ($this->moduleUtil->isModuleInstalled('Manufacturing') && (auth()->user()->can('superadmin') || $this->moduleUtil->hasThePermissionInSubscription($business_id, 'manufacturing_module'))) {
             $show_manufacturing_data = true;
