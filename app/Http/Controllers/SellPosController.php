@@ -1667,21 +1667,34 @@ class SellPosController extends Controller
        
         $customer = Contact::find($customer_id);
 
-        // pos changes start
-        $member_id = !empty($customer->custom_field1) ? $customer->custom_field1 : '';
-        $payment_types = $this->productUtil->payment_types($location_id, true, '', $member_id);
-        // $payment_types = $this->productUtil->payment_types($location_id, true);
-        // pos changes end
+        $payment_types = $this->productUtil->payment_types($location_id, true);
 
+        $customer_wallet = $this->get_all_wallet_ammount($customer_id); 
+
+        if($customer_wallet != null){
+            if($customer_wallet['product_wallet'] <= 0){
+                unset($payment_types['custom_pay_1']);
+            }
+            if($customer_wallet['purchase_wallet'] <= 0){
+                unset($payment_types['custom_pay_2']);
+            }
+            if($customer_wallet['redeem_wallet'] <= 0){
+                unset($payment_types['custom_pay_3']);
+            }
+            if($customer_wallet['armada_wallet'] <= 0){
+                unset($payment_types['custom_pay_4']);
+            };
+        }else{
+            if(!$customer->custom_field1 || str_contains($first_payment_type,"custom_pay_")){
+                foreach($payment_types as $key=>$pt){
+                    if(str_contains($key,"custom_pay_")){
+                        unset($payment_types[$key]);
+                    }
+                }
+            }
+        }
         $payment_line = $this->dummyPaymentLine;
 
-        // if(!$customer->custom_field1 || str_contains($first_payment_type,"custom_pay_")){
-        //     foreach($payment_types as $key=>$pt){
-        //         if(str_contains($key,"custom_pay_")){
-        //             unset($payment_types[$key]);
-        //         }
-        //     }
-        // }
         //Accounts
         $accounts = [];
         if ($this->moduleUtil->isModuleEnabled('account')) {

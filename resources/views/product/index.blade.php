@@ -103,11 +103,11 @@
                     <li class="active">
                         <a href="#product_list_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i> @lang('lang_v1.all_products')</a>
                     </li>
-                    @can('stock_report.view')
+                    {{-- @can('stock_report.view')
                     <li>
                         <a href="#product_stock_report" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>
                     </li>
-                    @endcan
+                    @endcan --}}
                 </ul>
 
                 <div class="tab-content">
@@ -119,11 +119,11 @@
                         @endcan
                         @include('product.partials.product_list')
                     </div>
-                    @can('stock_report.view')
+                    {{-- @can('stock_report.view')
                     <div class="tab-pane" id="product_stock_report">
                         @include('report.partials.stock_report_table')
                     </div>
-                    @endcan
+                    @endcan --}}
                 </div>
             </div>
         </div>
