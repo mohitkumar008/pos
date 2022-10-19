@@ -200,7 +200,8 @@ $(document).ready(function () {
                         var purchase_line_id = ui.item.purchase_line_id && searched_term == ui.item.lot_number ? ui.item.purchase_line_id : null;
                         pos_product_row(ui.item.variation_id, purchase_line_id);
                     } else {
-                        alert(LANG.out_of_stock);
+                        toastr.warning(LANG.out_of_stock);
+                        
                     }
                 },
             })
@@ -836,7 +837,7 @@ $(document).ready(function () {
             success: function (response) {
                 $('#purchasewalletmodal').modal('hide');
                 if (response.success) {
-                    alert(response.message);
+                    toastr.success(response.message);
                     $('#payment_rows_div')
                         .find('.wallet_otp')
                         .attr('readonly', true);
@@ -846,7 +847,7 @@ $(document).ready(function () {
                         .attr('readonly', true);
                     $('#pos-save').prop('disabled', false)
                 } else {
-                    alert(response.message);
+                    toastr.error(response.message);
                     $('#payment_rows_div')
                         .find('.wallet_otp')
                         .focus()
@@ -884,7 +885,7 @@ $(document).ready(function () {
             });
 
             if (total_advance_payments > 1) {
-                alert(LANG.advance_payment_cannot_be_more_than_once);
+                toastr.error(LANG.advance_payment_cannot_be_more_than_once);
                 return false;
             }
 
@@ -2644,6 +2645,9 @@ $(document).on('change', '#payment_rows_div .col-md-12:nth-child(1) .payment_typ
                 $('#pos-save').attr('disabled', 'true');
 
                 $("#payment_rows_div:first-child .payment-amount").val(discount).trigger('change').attr('readonly', true);
+                $('#payment_rows_div')
+                    .find('.wallet_otp')
+                    .attr('readonly', false);
 
                 let remaining_payable = total_payable - discount;
 
@@ -2699,7 +2703,7 @@ function timer(remaining) {
 }
 
 
-$(".send-wallet-otp").click(function () {
+$(document).on('click',".send-wallet-otp", function () {
 
     var walletType = $(this).data('payment_type');
     var member_id = $('#member_id').text()
@@ -2711,7 +2715,7 @@ function send_wallet_otp(walletType, member_id) {
     $('.send-wallet-otp').hide();
     $('.otp-timer').show();
     timerOn = true;
-    timer(5);
+    timer(60);
     var wallet = ''
 
     if (walletType == 'custom_pay_1') {
@@ -2736,23 +2740,7 @@ function send_wallet_otp(walletType, member_id) {
         data: { mart_user: 'NOIDA1', wallet: wallet, member_id: member_id },
         success: function (response) {
             if (response.Status == "Success") {
-
-                if (walletType == 'Product Wallet') {
-
-                }
-
-                if (walletType == 'Purchase Wallet') {
-
-                }
-
-                if (walletType == 'Redeem Wallet') {
-
-                }
-
-                if (walletType == 'Armada Wallet') {
-
-                }
-
+                toastr.success('Otp sent successfully');
             } else {
                 console.log(response)
             }

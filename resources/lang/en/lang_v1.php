@@ -1394,4 +1394,8 @@ return [
     'sell_additional_expense' => 'Sell additional expenses',
     'view_export_buttons' => 'View export to buttons (csv/excel/print/pdf) on tables',
     'overall' => 'Overall',
+    'product_removed_from_location' => 'Removed from location',
+    'product_added_to_location' => 'Added to location',
+    'product' => 'Product',
+    'location' => 'Location',
 ];

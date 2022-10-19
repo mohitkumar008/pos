@@ -3835,7 +3835,9 @@ class ReportController extends Controller
                                         $subject_type = isset($transaction_types[$row->subject->type]) ? $transaction_types[$row->subject->type] : '';
                                     } elseif (($row->subject_type == 'App\TransactionPayment')) {
                                        $subject_type = __('lang_v1.payment');
-                                    }
+                                    } elseif (($row->subject_type == 'App\Product')) {
+                                        $subject_type = __('lang_v1.product');
+                                     }
                                 return $subject_type;
                             })
                             ->addColumn('note', function($row) use ($statuses, $shipping_statuses){
@@ -3873,6 +3875,19 @@ class ReportController extends Controller
 
                                 if (!empty($row->getExtraProperty('ref_no'))) {
                                     $html .= __('purchase.ref_no') . ': ' . $row->getExtraProperty('ref_no');
+                                }
+                                if (!empty($row->properties['location'])) {
+                                    $html .= "<details>
+                                                    <summary><b>".__('lang_v1.location')." >> </b></summary>
+                                                    ".json_encode($row->properties['location'])."
+                                                </details>";
+                                }
+                                
+                                if (!empty($row->properties['product'])) {
+                                    $html .= "<details>
+                                                    <summary><b>".__('lang_v1.product')." >> </b></summary>
+                                                    ".json_encode($row->properties['product'])."
+                                                </details>";
                                 }
 
                                 return $html;

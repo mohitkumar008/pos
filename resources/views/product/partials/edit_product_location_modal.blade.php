@@ -14,7 +14,7 @@
 		            </div>
 			    	<div class="form-group">
 		                {!! Form::label('product_location',  __('purchase.business_location') . ':') !!}
-		                {!! Form::select('product_location[]', $business_locations, null, ['class' => 'form-control', 'style' => 'width:100%', 'required', 'multiple', 'id' => 'product_location']); !!}
+		                {!! Form::select('product_location[]', $business_locations_2, null, ['class' => 'form-control', 'style' => 'width:100%', 'required', 'multiple', 'id' => 'product_location', 'placeholder']); !!}
 		                {!! Form::hidden('products', null, ['id' => 'products_to_update_location']) !!}
 
 		                {!! Form::hidden('update_type', null, ['id' => 'update_type']) !!}

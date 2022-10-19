@@ -329,6 +329,9 @@ class ProductController extends Controller
         $business_locations = BusinessLocation::forDropdown($business_id, true);
         $business_locations->prepend(__('lang_v1.none'), 'none');
 
+        // Get locations for edit product location modal
+        $business_locations_2 = BusinessLocation::forDropdown($business_id);
+        
         if ($this->moduleUtil->isModuleInstalled('Manufacturing') && (auth()->user()->can('superadmin') || $this->moduleUtil->hasThePermissionInSubscription($business_id, 'manufacturing_module'))) {
             $show_manufacturing_data = true;
         } else {
@@ -346,6 +349,7 @@ class ProductController extends Controller
                 'units',
                 'taxes',
                 'business_locations',
+                'business_locations_2',
                 'show_manufacturing_data',
                 'pos_module_data',
                 'is_woocommerce'
