@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\BusinessLocation;
+use DB;
 
-use App\PurchaseLine;
-
-use App\Transaction;
-use App\Utils\ModuleUtil;
-
-use App\Utils\ProductUtil;
-use App\Utils\TransactionUtil;
 use Datatables;
 
-use DB;
+use App\Transaction;
+use App\PurchaseLine;
+
+use App\BusinessLocation;
+use App\Utils\ModuleUtil;
+use App\Utils\ProductUtil;
+
+use App\StockAdjustmentLine;
 use Illuminate\Http\Request;
+use App\Utils\TransactionUtil;
 use Spatie\Activitylog\Models\Activity;
 
 class StockAdjustmentController extends Controller
@@ -65,6 +66,7 @@ class StockAdjustmentController extends Controller
                     ->where('transactions.type', 'stock_adjustment')
                     ->select(
                         'transactions.id',
+                        'transactions.status',
                         'transaction_date',
                         'ref_no',
                         'BL.name as location_name',
@@ -94,9 +96,22 @@ class StockAdjustmentController extends Controller
             }
             
             return Datatables::of($stock_adjustments)
-                ->addColumn('action', '<button type="button" data-href="{{  action("StockAdjustmentController@show", [$id]) }}" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>
+                ->addColumn('action', '
+                @can("stock_adjustment.update_status")
+                    @if($status=="pending")
+                        <a href="{{route("stock_adjustment.approve", ["id"=>$id])}}" class="btn btn-success btn-xs"><i class="fa fa-check" aria-hidden="true"></i> @lang("messages.approve")</a>
+                        &nbsp;
+                    @endif
+                    @if($status!="rejected" && $status!="approved")
+                        <button type="button" onclick="rejectForm({{$DT_RowId}})" class="btn btn-warning btn-xs"><i class="fa fa-check" aria-hidden="true"></i> @lang("messages.reject")</button>
+                        &nbsp;
+                    @endif
+                @endcan
+                <button type="button" data-href="{{  action("StockAdjustmentController@show", [$id]) }}" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>
                  &nbsp;
-                    <button type="button" data-href="{{  action("StockAdjustmentController@destroy", [$id]) }}" class="btn btn-danger btn-xs delete_stock_adjustment ' . $hide . '"><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</button>')
+                <button type="button" data-href="{{  action("StockAdjustmentController@destroy", [$id]) }}" class="btn btn-danger btn-xs delete_stock_adjustment ' . $hide . '"><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</button>
+                ')
+                ->editColumn('status', '<span class="label bg-aqua">{{ucfirst($status)}}</span>')
                 ->removeColumn('id')
                 ->editColumn(
                     'final_total',
@@ -114,7 +129,7 @@ class StockAdjustmentController extends Controller
                 'data-href' => function ($row) {
                     return  action('StockAdjustmentController@show', [$row->id]);
                 }])
-                ->rawColumns(['final_total', 'action', 'total_amount_recovered'])
+                ->rawColumns(['final_total', 'action', 'total_amount_recovered','status'])
                 ->make(true);
         }
 
@@ -171,6 +186,7 @@ class StockAdjustmentController extends Controller
             $user_id = $request->session()->get('user.id');
 
             $input_data['type'] = 'stock_adjustment';
+            $input_data['status'] = 'pending';
             $input_data['business_id'] = $business_id;
             $input_data['created_by'] = $user_id;
             $input_data['transaction_date'] = $this->productUtil->uf_date($input_data['transaction_date'], true);
@@ -192,7 +208,7 @@ class StockAdjustmentController extends Controller
                     $adjustment_line = [
                         'product_id' => $product['product_id'],
                         'variation_id' => $product['variation_id'],
-                        'quantity' => $this->productUtil->num_uf($product['quantity']),
+                        'request_qty' => $this->productUtil->num_uf($product['quantity']),
                         'unit_price' => $this->productUtil->num_uf($product['unit_price'])
                     ];
                     if (!empty($product['lot_no_line_id'])) {
@@ -201,13 +217,7 @@ class StockAdjustmentController extends Controller
                     }
                     $product_data[] = $adjustment_line;
 
-                    //Decrease available quantity
-                    $this->productUtil->decreaseProductQuantity(
-                        $product['product_id'],
-                        $product['variation_id'],
-                        $input_data['location_id'],
-                        $this->productUtil->num_uf($product['quantity'])
-                    );
+                    
                 }
 
                 $stock_adjustment = Transaction::create($input_data);
@@ -482,4 +492,78 @@ class StockAdjustmentController extends Controller
         }
         return $output;
     }
+
+    public function approveStockAdjustment($id)
+    {
+        if (!auth()->user()->can('stock_adjustment.update_status')) {
+            abort(403, 'Unauthorized action.');
+        }
+        $stock_adjustment = $this->show($id)->stock_adjustment;
+        return view('stock_adjustment.approve')->with(compact('stock_adjustment'));
+    }
+
+    public function updateStatus(Request $request, $type)
+    {
+        if (!auth()->user()->can('stock_adjustment.update_status')) {
+            abort(403, 'Unauthorized action.');
+        }
+        try {
+            $transaction = Transaction::find($request->post('transaction_id'));
+            if($type == 'approve'){
+                $stock_adjustment = $request->post("stock_adjustment");
+                $i = 1;
+                foreach ($stock_adjustment as $stock_adjustment) {
+                    $approve_qty = $stock_adjustment['approve_qty']; 
+                    $request_qty = $stock_adjustment['request_qty']; 
+                    
+                    if ($approve_qty <= $request_qty) {
+                        $stock_adjustment_line = StockAdjustmentLine::find($stock_adjustment['id']);
+    
+                        //Decrease available quantity
+                        $this->productUtil->decreaseProductQuantity(
+                            $stock_adjustment_line->product_id,
+                            $stock_adjustment_line->variation_id,
+                            $transaction->location_id,
+                            $this->productUtil->num_uf($approve_qty)
+                        );
+    
+                        $stock_adjustment_line->update(['quantity' => $approve_qty]);
+                    }
+                    else{
+                        $error_msg = "Approve quantity can not be more than requseted qty in row number ".$i;
+                        throw new \Exception($error_msg);
+                    }
+                    $i++;
+                }
+                Transaction::find($request->post('transaction_id'))->update(['status' => 'approved']);
+                
+                $output = [
+                    'success' => 1,
+                    'msg' => __('stock_adjustment.stock_adjustment_approved_successfully')
+                ];
+            }
+            elseif($type == 'reject'){
+                Transaction::find($request->post('transaction_id'))->update(['status' => 'rejected']);
+                
+                $output = [
+                    'success' => 1,
+                    'msg' => __('stock_adjustment.stock_adjustment_rejected_successfully')
+                ];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+            $msg = trans("messages.something_went_wrong");
+
+            $output = [
+                'success' => 0,
+                'msg' => "Message: " . $e->getMessage()
+            ];
+            return redirect('stock-adjustments/'.$request->post('transaction_id').'/approve')->with('notification', $output);
+        }
+
+        return redirect('stock-adjustments')->with('status', $output);
+    }
+
 }

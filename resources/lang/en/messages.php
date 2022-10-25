@@ -44,4 +44,7 @@ return [
     'price' => 'Price',
     'activate' => 'Activate',
     'deactivate' => 'Deactivate',
+    'status' => 'Status',
+    'approve' => 'Approve',
+    'reject' => 'Reject',
 ];

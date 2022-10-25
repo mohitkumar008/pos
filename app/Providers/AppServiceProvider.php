@@ -126,9 +126,9 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('transaction_status', function ($status) {
             return "<?php if($status == 'ordered'){
                 echo 'bg-aqua';
-            }elseif($status == 'pending'){
+            }elseif($status == 'pending' || $status == 'rejected'){
                 echo 'bg-red';
-            }elseif ($status == 'received') {
+            }elseif ($status == 'received' || $status == 'appproved'){ {
                 echo 'bg-light-green';
             }?>";
         });

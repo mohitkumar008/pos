@@ -115,9 +115,10 @@ $(document).ready(function() {
                 searchable: false,
             },
         ],
-        aaSorting: [[1, 'desc']],
+        aaSorting: [[2, 'desc']],
         columns: [
             { data: 'action', name: 'action' },
+            { data: 'status', name: 'status' },
             { data: 'transaction_date', name: 'transaction_date' },
             { data: 'ref_no', name: 'ref_no' },
             { data: 'location_name', name: 'BL.name' },

@@ -118,6 +118,8 @@ return [
     'edit_variation' => 'Edit Variation',
     'received' => 'Received',
     'pending' => 'Pending',
+    'approved' => 'Approved',
+    'rejected' => 'Rejected',
     'ordered' => 'Ordered',
     'search_product_placeholder' => 'Enter Product name / SKU / Scan bar code',
     'fixed' => 'Fixed',
@@ -1398,4 +1400,7 @@ return [
     'product_added_to_location' => 'Added to location',
     'product' => 'Product',
     'location' => 'Location',
+    'stock_adjustment_update_status' => 'Update stock adjustment status',
+    'requested_qty' => 'Requested Quantity',
+    'approved_qty' => 'Approved Quantity',
 ];

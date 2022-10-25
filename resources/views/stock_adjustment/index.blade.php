@@ -24,6 +24,7 @@
                 <thead>
                     <tr>
                         <th>@lang('messages.action')</th>
+                        <th>@lang('messages.status')</th>
                         <th>@lang('messages.date')</th>
                         <th>@lang('purchase.ref_no')</th>
                         <th>@lang('business.location')</th>
@@ -43,4 +44,12 @@
 @stop
 @section('javascript')
 	<script src="{{ asset('js/stock_adjustment.js?v=' . $asset_v) }}"></script>
+    <script>
+        function rejectForm(transaction_id){
+            $('<form/>', { action: "{{ route('stock_adjustment.update_status', ['type'=>'reject']) }}", method: 'POST' }).append(
+            $('<input>', {type: 'hidden', name: 'transaction_id', value: transaction_id}),
+            $('<input>', {type: 'hidden', name: '_token', value: "{{ csrf_token() }}"}),
+        ).appendTo('body').submit();
+        }
+    </script>
 @endsection

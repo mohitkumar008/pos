@@ -25,7 +25,7 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         Route::post('/business/register/check-username', 'BusinessController@postCheckUsername')->name('business.postCheckUsername');
         Route::post('/business/register/check-email', 'BusinessController@postCheckEmail')->name('business.postCheckEmail');
     
-        Route::get('/invoice/{token}', 'SellPosController@showInvoice')
+        Route::get('/invc/{token}', 'SellPosController@showInvoice')
             ->name('show_invoice');
         Route::get('/quote/{token}', 'SellPosController@showInvoice')
             ->name('show_quote');
@@ -247,6 +247,8 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         Route::resource('printers', 'PrinterController');
     
         Route::get('/stock-adjustments/remove-expired-stock/{purchase_line_id}', 'StockAdjustmentController@removeExpiredStock');
+        Route::get('/stock-adjustments/{id}/approve', 'StockAdjustmentController@approveStockAdjustment')->name('stock_adjustment.approve');
+        Route::post('/stock-adjustments/update-status/{type}', 'StockAdjustmentController@updateStatus')->name('stock_adjustment.update_status');
         Route::post('/stock-adjustments/get_product_row', 'StockAdjustmentController@getProductRow');
         Route::resource('stock-adjustments', 'StockAdjustmentController');
     

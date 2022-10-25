@@ -24,6 +24,8 @@ return [
     'total_amount_recovered' => 'Total amount recovered',
     'reason_for_stock_adjustment' => 'Reason',
     'stock_adjustment_added_successfully' => 'Stock adjustment added successfully',
+    'stock_adjustment_approved_successfully' => 'Stock adjustment approved successfully',
+    'stock_adjustment_rejected_successfully' => 'Stock adjustment rejected successfully',
     'search_products' => 'Search Products',
     'delete_success' => 'Stock adjustment deleted successfully',
     'view_details' => 'View stock adjustment details'

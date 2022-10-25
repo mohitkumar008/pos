@@ -636,6 +636,23 @@ class Util
     }
 
     /**
+     * Generates unique token
+     *
+     * @param void
+     *
+     * @return string
+     */
+    function generateStingToken($length = 10) {
+        $characters = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+    /**
      * Generates invoice url for the transaction
      *
      * @param int $transaction_id, int $business_id
@@ -648,7 +665,7 @@ class Util
                             ->findOrFail($transaction_id);
 
         if (empty($transaction->invoice_token)) {
-            $transaction->invoice_token = $this->generateToken();
+            $transaction->invoice_token = $this->generateStingToken(10);
             $transaction->save();
         }
 
@@ -856,6 +873,13 @@ class Util
             //Replace invoice_url
             if (!empty($transaction) && strpos($value, '{invoice_url}') !== false && $transaction->type == 'sell') {
                 $invoice_url = $this->getInvoiceUrl($transaction->id, $transaction->business_id);
+                if ( strstr( $invoice_url, 'http://' ) ) {
+                    $invoice_url = str_replace('http://', '', $invoice_url);
+                }
+                else if ( strstr( $invoice_url, 'https://' ) )
+                {
+                    $invoice_url = str_replace('https://', '', $invoice_url);
+                }
                 $data[$key] = str_replace('{invoice_url}', $invoice_url, $data[$key]);
             }
 
