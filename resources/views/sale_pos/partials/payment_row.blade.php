@@ -1,4 +1,4 @@
-<div class="col-md-12">
+<div class="col-md-12 payment_box">
     <div class="box box-solid payment_row bg-lightgray">
         {{-- @if($removable) --}}
         <div class="box-header">

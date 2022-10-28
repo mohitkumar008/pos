@@ -1658,6 +1658,7 @@ class SellPosController extends Controller
     {
         $business_id = request()->session()->get('user.business_id');
         
+        $get_wallet_options = $request->input('get_wallet_options');
         $row_index = $request->input('row_index');
         $first_payment_type = $request->input('first_payment_type');
         $customer_id = $request->input('customer_id');
@@ -1668,6 +1669,13 @@ class SellPosController extends Controller
         $customer = Contact::find($customer_id);
 
         $payment_types = $this->productUtil->payment_types($location_id, true);
+
+        if($get_wallet_options == 'false'){
+            unset($payment_types['custom_pay_1']);
+            unset($payment_types['custom_pay_2']);
+            unset($payment_types['custom_pay_3']);
+            unset($payment_types['custom_pay_4']);
+        }
 
         $customer_wallet = $this->get_all_wallet_ammount($customer_id); 
 
