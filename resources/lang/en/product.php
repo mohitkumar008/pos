@@ -59,5 +59,7 @@ return [
     'file_to_import' => 'File To Import',
     'file_imported_successfully' => 'File imported successfully',
     'hsn' => 'HSN Code',
-    'add_hsn' => 'Add HSN'
+    'add_hsn' => 'Add HSN',
+    'add_barcode' => 'Add Barcode',
+    'add_hsn_or_barcode' => 'Add HSN & Barcode',
  ];

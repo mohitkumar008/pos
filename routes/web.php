@@ -110,8 +110,9 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         Route::post('/products/save_quick_product', 'ProductController@saveQuickProduct');
         Route::get('/products/get-combo-product-entry-row', 'ProductController@getComboProductEntryRow');
         Route::post('/products/toggle-woocommerce-sync', 'ProductController@toggleWooCommerceSync');
-        Route::get('/products/add-hsn', 'ProductController@addHSN');
-        Route::post('/products/add-hsn/store', 'ProductController@storeHSN');
+        Route::get('/products/add-hsn-or-barcode', 'ProductController@addHSN');
+        Route::post('/products/add-hsn-or-barcode/store', 'ProductController@storeHSN');
+        Route::post('/products/add-hsn-or-barcode/store-barcode', 'ProductController@storeBarcode');
         
         Route::resource('products', 'ProductController');
     

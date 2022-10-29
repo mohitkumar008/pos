@@ -185,8 +185,8 @@ class AdminSidebarMenu
                         if (auth()->user()->can('product.add_hsn')) {
                             $sub->url(
                                 action('ProductController@addHSN'),
-                                __('product.add_hsn'),
-                                ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'add-hsn']
+                                __('product.add_hsn_or_barcode'),
+                                ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'add-hsn-or-barcode']
                             );
                         }
 

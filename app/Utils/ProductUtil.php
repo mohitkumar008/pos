@@ -2141,44 +2141,53 @@ class ProductUtil extends Util
 
     public function updateProductLocations($business_id, $product_ids, $location_ids, $update_type)
     {
-        $products = Product::where('business_id', $business_id)
-            ->whereIn('id', $product_ids)
-            ->with(['product_locations'])
-            ->get();
-        $locationArr = [];
-        $productArr = [];
-        foreach ($location_ids as $location_id) {
-            $location = BusinessLocation::find($location_id);
-            if (!empty($location)) {
-                $locationArr[] = $location->name;
+        $collection = collect($product_ids);
+
+        $chunks = $collection->chunk(500);
+
+        foreach ($chunks as $chunk) {
+            $product_id_chunk = $chunk->toArray();
+            
+            $products = Product::where('business_id', $business_id)
+                                ->whereIn('id', $product_id_chunk)
+                                ->with(['product_locations'])
+                                ->get();
+            $locationArr = [];
+            $productArr = [];
+            foreach ($location_ids as $location_id) {
+                $location = BusinessLocation::find($location_id);
+                if (!empty($location)) {
+                    $locationArr[] = $location->name;
+                }
             }
-        }
-        foreach ($product_ids as $product_id) {
-            $product = Product::find($product_id);
-            if (!empty($product)) {
-                $productArr[] = $product->sku;
+            foreach ($product_ids as $product_id) {
+                $product = Product::find($product_id);
+                if (!empty($product)) {
+                    $productArr[] = $product->sku;
+                }
             }
-        }
-        $properities = [
-            'location' => $locationArr,
-            'product' => $productArr
-        ];
-        $action = $update_type == 'remove' ? "product_removed_from_location" : "product_added_to_location";
-        foreach ($products as $product) {
-            $product_locations = $product->product_locations->pluck('id')->toArray();
-            if ($update_type == 'add') {
-                $product_locations = array_unique(array_merge($location_ids, $product_locations));
-                $product->product_locations()->sync($product_locations);
-            } elseif ($update_type == 'remove') {
-                foreach ($product_locations as $key => $value) {
-                    if (in_array($value, $location_ids)) {
-                        unset($product_locations[$key]);
-                    }
-                }                
-                $product->product_locations()->sync($product_locations);
+            $properities = [
+                'location' => $locationArr,
+                'product' => $productArr
+            ];
+    
+            $action = $update_type == 'remove' ? "product_removed_from_location" : "product_added_to_location";
+            foreach ($products as $product) {
+                $product_locations = $product->product_locations->pluck('id')->toArray();
+                if ($update_type == 'add') {
+                    $product_locations = array_unique(array_merge($location_ids, $product_locations));
+                    $product->product_locations()->sync($product_locations);
+                } elseif ($update_type == 'remove') {
+                    foreach ($product_locations as $key => $value) {
+                        if (in_array($value, $location_ids)) {
+                            unset($product_locations[$key]);
+                        }
+                    }                
+                    $product->product_locations()->sync($product_locations);
+                }
             }
+            $this->activityLog($product, $action, null, $properities);
         }
-        $this->activityLog($product, $action, null, $properities);
     }
 
     public function productsForLocation($request)

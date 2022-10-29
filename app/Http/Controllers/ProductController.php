@@ -2258,12 +2258,13 @@ class ProductController extends Controller
         if (!auth()->user()->can('product.add_hsn')) {
             abort(403, 'Unauthorized action.');
         }
-
+        $business_id = $request->session()->get('user.business_id');
         $zip_loaded = extension_loaded('zip') ? true : false;
 
         $date_formats = Business::date_formats();
         $date_format = session('business.date_format');
         $date_format = isset($date_formats[$date_format]) ? $date_formats[$date_format] : $date_format;
+        $business_locations = BusinessLocation::forDropdown($business_id);
 
         //Check if zip extension it loaded or not.
         if ($zip_loaded === false) {
@@ -2272,10 +2273,10 @@ class ProductController extends Controller
                         ];
 
             return view('product.add-hsn')
-                ->with(compact('notification', 'date_format'));
+                ->with(compact('notification', 'date_format', 'business_locations'));
         } else {
             return view('product.add-hsn')
-                ->with(compact('date_format'));
+                ->with(compact('date_format','business_locations'));
         }
     }
 
@@ -2375,5 +2376,97 @@ class ProductController extends Controller
         }
 
         return redirect('products/add-hsn')->with('status', $output);
+    }
+
+    public function storeBarcode(Request $request){
+
+        if (!auth()->user()->can('product.add_hsn')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            
+            
+            $business_id = $request->session()->get('user.business_id');
+            $location_id = array($request->input('location_id'));
+            $update_type = 'remove';
+            
+            $product = DB::table('product_locations')->where(['location_id'=>$location_id])->get();
+            $product_ids = [];
+            foreach ($product as $list){
+                $product_ids[] = $list->product_id;
+            }
+
+            DB::beginTransaction();
+
+            // Remove products from selected location
+            $this->productUtil->updateProductLocations($business_id, $product_ids, $location_id, 'remove');
+
+            // Add new brarcodes to selected location
+            ini_set('max_execution_time', 0);
+            ini_set('memory_limit', -1);
+
+            if ($request->hasFile('import_barcode_csv')) {
+                $file = $request->file('import_barcode_csv');
+                
+                $parsed_array = Excel::toArray([], $file);
+                //Remove header row
+                $imported_data = array_splice($parsed_array[0], 1);
+
+                
+                $user_id = $request->session()->get('user.id');
+
+                $formated_data = [];
+                $productIdArr = [];
+
+                $is_valid = true;
+                $error_msg = '';
+                
+                foreach ($imported_data as $key => $value) {
+                    $row_no = $key + 1;
+                    $sku = $value[0];
+                    //Check for product SKU, get product id, variation id.
+                    if (!empty($sku)) {
+                        $product_info = Product::where('business_id', $business_id)->where('sku', $sku)->first();
+
+                        if (!empty($product_info)){
+                            $productIdArr[] = $product_info->id;
+                        } else{
+                            $is_valid =  false;
+                            $error_msg = "Product with sku $sku not found in row no. $row_no";
+                            break;
+                        }
+                        
+                    } else {
+                        $is_valid =  false;
+                        $error_msg = "PRODUCT SKU is required in row no. $row_no";
+                        break;
+                    }
+                }
+                // dd($productIdArr);
+                // Add new brarcodes to selected location
+                $this->productUtil->updateProductLocations($business_id, $productIdArr, $location_id, 'add');
+            }
+
+            if (!$is_valid) {
+                throw new \Exception($error_msg);
+            }
+
+            $output = ['success' => 1,
+                            'msg' => __('product.file_imported_successfully')
+                        ];
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+            $output = ['success' => 0,
+                            'msg' => "Message:" . $e->getMessage()
+                        ];
+            return redirect('products/add-hsn-or-barcode')->with('barcode_notification', $output);
+        }
+
+        return redirect('products/add-hsn-or-barcode')->with('status', $output);
     }
 }
