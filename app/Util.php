@@ -169,12 +169,10 @@ class Util
         $payment_types['custom_pay_1'] = !empty($custom_labels['payments']['custom_pay_1']) ? $custom_labels['payments']['custom_pay_1'] : __('lang_v1.custom_payment', ['number' => 1]);
         $payment_types['custom_pay_2'] = !empty($custom_labels['payments']['custom_pay_2']) ? $custom_labels['payments']['custom_pay_2'] : __('lang_v1.custom_payment', ['number' => 2]);
         $payment_types['custom_pay_3'] = !empty($custom_labels['payments']['custom_pay_3']) ? $custom_labels['payments']['custom_pay_3'] : __('lang_v1.custom_payment', ['number' => 3]);
-        $payment_types['custom_pay_4'] = !empty($custom_labels['payments']['custom_pay_4']) ? $custom_labels['payments']['custom_pay_4'] : __('lang_v1.custom_payment', ['number' => 4]);
         // $payment_types['custom_pay_4'] = !empty($custom_labels['payments']['custom_pay_4']) ? $custom_labels['payments']['custom_pay_4'] : __('lang_v1.custom_payment', ['number' => 4]);
         // $payment_types['custom_pay_5'] = !empty($custom_labels['payments']['custom_pay_5']) ? $custom_labels['payments']['custom_pay_5'] : __('lang_v1.custom_payment', ['number' => 5]);
         // $payment_types['custom_pay_6'] = !empty($custom_labels['payments']['custom_pay_6']) ? $custom_labels['payments']['custom_pay_6'] : __('lang_v1.custom_payment', ['number' => 6]);
         // $payment_types['custom_pay_7'] = !empty($custom_labels['payments']['custom_pay_7']) ? $custom_labels['payments']['custom_pay_7'] : __('lang_v1.custom_payment', ['number' => 7]);
-
 
         //Unset payment types if not enabled in business location
         if (!empty($location)) {
@@ -634,8 +632,7 @@ class Util
      */
     public function generateToken()
     {
-        // return md5(rand(1, 10) . microtime());
-        return substr(md5(rand(1, 10) . microtime()),0,10);;
+        return md5(rand(1, 10) . microtime());
     }
 
     /**
@@ -859,13 +856,6 @@ class Util
             //Replace invoice_url
             if (!empty($transaction) && strpos($value, '{invoice_url}') !== false && $transaction->type == 'sell') {
                 $invoice_url = $this->getInvoiceUrl($transaction->id, $transaction->business_id);
-                if ( strstr( $invoice_url, 'http://' ) ) {
-                    $invoice_url = str_replace('http://', '', $invoice_url);
-                }
-                else if ( strstr( $invoice_url, 'https://' ) )
-                {
-                    $invoice_url = str_replace('https://', '', $invoice_url);
-                }
                 $data[$key] = str_replace('{invoice_url}', $invoice_url, $data[$key]);
             }
 
@@ -1585,41 +1575,6 @@ class Util
 
                 $user->revokePermissionTo($revoke_permissions);
             }
-        }
-    }
-    
-    /**
-     * Create slug
-     */
-    public function create_slug($str)
-    {
-        if(trim($str) == ""){
-            return $str;
-        }
-        else{
-            $str=trim($str);
-            $str = str_replace("%", '', $str);
-            $str = str_replace("#", '', $str);
-            $str = str_replace("'", '', $str);
-            $str = str_replace(";", '', $str);
-            $str = str_replace("<", '', $str);
-            $str = str_replace(">", '', $str);
-            $str = str_replace("(", '', $str);
-            $str = str_replace(")", '', $str);
-            $str = str_replace('"', '', $str);
-            $str = str_replace("/", '', $str);
-            $str = str_replace("-", '', $str);
-            $str = str_replace("_", '', $str);
-            $str = str_replace("\\", '', $str);
-            $str = str_replace("?", '', $str);
-            $str = str_replace("!", '', $str);
-            $str = str_replace(".", '', $str);
-            $str = str_replace(",", '', $str);
-            $str=trim($str);
-            $str = str_replace("  ", '-', $str);
-            $str = str_replace(" ", '-', $str);
-            $fin_string=strtolower($str);
-            return $fin_string;
         }
     }
 }

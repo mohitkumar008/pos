@@ -53,7 +53,7 @@
         <div class="col-md-3" id="location_filter">
             <div class="form-group">
                 {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%',]); !!}
+                {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
             </div>
         </div>
         <div class="col-md-3">
@@ -103,11 +103,11 @@
                     <li class="active">
                         <a href="#product_list_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" aria-hidden="true"></i> @lang('lang_v1.all_products')</a>
                     </li>
-                    {{-- @can('stock_report.view')
-                    <li>
-                        <a href="#product_stock_report" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>
-                    </li>
-                    @endcan --}}
+                    <!--@can('stock_report.view')-->
+                    <!--<li>-->
+                    <!--    <a href="#product_stock_report" data-toggle="tab" aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i> @lang('report.stock_report')</a>-->
+                    <!--</li>-->
+                    <!--@endcan-->
                 </ul>
 
                 <div class="tab-content">
@@ -119,11 +119,11 @@
                         @endcan
                         @include('product.partials.product_list')
                     </div>
-                    {{-- @can('stock_report.view')
-                    <div class="tab-pane" id="product_stock_report">
-                        @include('report.partials.stock_report_table')
-                    </div>
-                    @endcan --}}
+                    <!--@can('stock_report.view')-->
+                    <!--<div class="tab-pane" id="product_stock_report">-->
+                    <!--    @include('report.partials.stock_report_table')-->
+                    <!--</div>-->
+                    <!--@endcan-->
                 </div>
             </div>
         </div>

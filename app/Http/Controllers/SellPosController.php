@@ -308,7 +308,7 @@ class SellPosController extends Controller
         if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
             return redirect()->action('CashRegisterController@create');
         }
-        // dd($request->all());
+            // dd($request->all());
         try {
             $input = $request->except('_token');
             
@@ -674,6 +674,9 @@ class SellPosController extends Controller
     public function amountDebitFromWallet($member_id, $contact_id, $total_payable, $payment_detail){
 
         $discount = $payment_detail['amount'];
+
+        $discount = $this->transactionUtil->num_uf($discount);
+        $total_payable = $this->transactionUtil->num_uf($total_payable);
 
         if ($payment_detail['method'] == "custom_pay_1") {
             $otp = $payment_detail['transaction_no_1'];
@@ -1669,7 +1672,7 @@ class SellPosController extends Controller
         $customer = Contact::find($customer_id);
 
         $payment_types = $this->productUtil->payment_types($location_id, true);
-
+        
         if($get_wallet_options == 'false'){
             unset($payment_types['custom_pay_1']);
             unset($payment_types['custom_pay_2']);
@@ -1702,7 +1705,6 @@ class SellPosController extends Controller
             }
         }
         $payment_line = $this->dummyPaymentLine;
-
         //Accounts
         $accounts = [];
         if ($this->moduleUtil->isModuleEnabled('account')) {

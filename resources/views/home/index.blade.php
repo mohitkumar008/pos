@@ -125,13 +125,13 @@
          @if(auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view'))
             @if(!empty($all_locations))
               	<!-- sales chart start -->
-              	<div class="row">
-              		<div class="col-sm-12">
-                        @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_last_30_days')])
-                          {!! $sells_chart_1->container() !!}
-                        @endcomponent
-              		</div>
-              	</div>
+              	<!--<div class="row">-->
+              	<!--	<div class="col-sm-12">-->
+               <!--         @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_last_30_days')])-->
+               <!--           {!! $sells_chart_1->container() !!}-->
+               <!--         @endcomponent-->
+              	<!--	</div>-->
+              	<!--</div>-->
             @endif
             @if(!empty($widgets['after_sales_last_30_days']))
                 @foreach($widgets['after_sales_last_30_days'] as $widget)
@@ -139,13 +139,13 @@
                 @endforeach
             @endif
             @if(!empty($all_locations))
-              	<div class="row">
-              		<div class="col-sm-12">
-                        @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_current_fy')])
-                          {!! $sells_chart_2->container() !!}
-                        @endcomponent
-              		</div>
-              	</div>
+              	<!--<div class="row">-->
+              	<!--	<div class="col-sm-12">-->
+               <!--         @component('components.widget', ['class' => 'box-primary', 'title' => __('home.sells_current_fy')])-->
+               <!--           {!! $sells_chart_2->container() !!}-->
+               <!--         @endcomponent-->
+              	<!--	</div>-->
+              	<!--</div>-->
             @endif
         @endif
       	<!-- sales chart end -->
@@ -387,8 +387,8 @@
     @includeIf('sales_order.common_js')
     @includeIf('purchase_order.common_js')
     @if(!empty($all_locations))
-        {!! $sells_chart_1->script() !!}
-        {!! $sells_chart_2->script() !!}
+        <!--{!! $sells_chart_1->script() !!}-->
+        <!--{!! $sells_chart_2->script() !!}-->
     @endif
     <script type="text/javascript">
         sales_order_table = $('#sales_order_table').DataTable({

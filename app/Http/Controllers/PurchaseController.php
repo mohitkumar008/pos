@@ -1305,7 +1305,6 @@ class PurchaseController extends Controller
                     
                     if(!empty($sku)){
                         $get_product_info = Variation::where('sub_sku', $sku)->first();
-                        // dd($product_id);
                         if(!empty($get_product_info)){
                             $variation_id = $get_product_info->id; 
                             $product_id = $get_product_info->product_id; 
@@ -1313,7 +1312,7 @@ class PurchaseController extends Controller
                                                 ->with(['unit', 'product_tax'])
                                                 ->first();
         
-                            $product['sub_units'] = $this->productUtil->getSubUnits($business_id, $product['product']->unit->id, false, $product_id);
+                            // $product['sub_units'] = $this->productUtil->getSubUnits($business_id, $product['product']->unit->id, false, $product_id);
             
                             $query = Variation::where('product_id', $product_id)
                                             ->with([

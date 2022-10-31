@@ -1069,7 +1069,7 @@ class ReportController extends Controller
         }
 
         $users = User::forDropdown($business_id, false);
-        $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
+        $payment_types = $this->transactionUtil->payment_types(null, true, $business_id, '', true);
 
         return view('report.register_report')
                     ->with(compact('users', 'payment_types'));
@@ -3876,6 +3876,7 @@ class ReportController extends Controller
                                 if (!empty($row->getExtraProperty('ref_no'))) {
                                     $html .= __('purchase.ref_no') . ': ' . $row->getExtraProperty('ref_no');
                                 }
+                                
                                 if (!empty($row->properties['location'])) {
                                     $html .= "<details>
                                                     <summary><b>".__('lang_v1.location')." >> </b></summary>

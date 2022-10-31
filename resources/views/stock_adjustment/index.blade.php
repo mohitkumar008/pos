@@ -44,7 +44,7 @@
 @stop
 @section('javascript')
 	<script src="{{ asset('js/stock_adjustment.js?v=' . $asset_v) }}"></script>
-    <script>
+	<script>
         function rejectForm(transaction_id){
             $('<form/>', { action: "{{ route('stock_adjustment.update_status', ['type'=>'reject']) }}", method: 'POST' }).append(
             $('<input>', {type: 'hidden', name: 'transaction_id', value: transaction_id}),

@@ -46,13 +46,15 @@ class BusinessLocation extends Model
         }
         
         
-        if ($check_permission && count($location_ids)) {
+        if ($check_permission && $location_ids) {
             
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
                 $result = array_intersect($permitted_locations, $location_ids);
-                $query->whereIn('id', $result);
-            }else{
+                if($result){
+                    $query->whereIn('id', $result);
+                }
+            }elseif($location_ids){
                 $query->whereIn('id', $location_ids);
             }
         }

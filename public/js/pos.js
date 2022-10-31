@@ -201,7 +201,6 @@ $(document).ready(function () {
                         pos_product_row(ui.item.variation_id, purchase_line_id);
                     } else {
                         toastr.warning(LANG.out_of_stock);
-                        
                     }
                 },
             })
@@ -596,7 +595,7 @@ $(document).ready(function () {
                     if (redeem_wallet > 0) {
                         html += '<strong>Redeem Wallet:</strong><span>' + redeem_wallet + '</span><input type="hidden" name="redeem_wallet_bal" id="custom_payment_3" value="' + redeem_wallet + '">'
                     }
-
+                    
                     if (armada_wallet > 0) {
                         html += '<strong>Armada Wallet:</strong><span>' + armada_wallet + '</span><input type="hidden" name="armada_wallet_bal" id="custom_payment_4" value="' + armada_wallet + '">'
                     }
@@ -763,11 +762,10 @@ $(document).ready(function () {
         if($('#payment_rows_div').find('div.payment_box').length == 0){
             get_wallet_options = true;
         }
-
         $.ajax({
             method: 'POST',
             url: '/sells/pos/get_payment_row',
-            data: { row_index: row_index, location_id: location_id, customer_id: customer_id, first_payment_type: first_payment_type,get_wallet_options:get_wallet_options },
+            data: { row_index: row_index, location_id: location_id, customer_id: customer_id, first_payment_type: first_payment_type, get_wallet_options: get_wallet_options },
             dataType: 'html',
             success: function (result) {
                 if (result) {
@@ -860,7 +858,6 @@ $(document).ready(function () {
                 }
             }
         });
-
     })
 
 
@@ -2566,22 +2563,22 @@ $(document).on('change', '#payment_rows_div .col-md-12:nth-child(1) .payment_typ
     }
 
     if (payment_type == 'custom_pay_1' || payment_type == 'custom_pay_2' || payment_type == 'custom_pay_3' || payment_type == 'custom_pay_4') {
-
-        var walletType = '';
-
-        if (payment_type == 'custom_pay_1') {
+        
+        var walletType='';
+        
+        if(payment_type == 'custom_pay_1'){
             walletType = 'Product Wallet';
         }
-
-        if (payment_type == 'custom_pay_2') {
+        
+        if(payment_type == 'custom_pay_2'){
             walletType = 'Purchase Point';
         }
-
-        if (payment_type == 'custom_pay_3') {
+        
+        if(payment_type == 'custom_pay_3'){
             walletType = 'Redeem Point';
         }
-
-        if (payment_type == 'custom_pay_4') {
+        
+        if(payment_type == 'custom_pay_4'){
             walletType = 'Armada Point';
         }
 
@@ -2711,7 +2708,6 @@ $(document).on('click',".send-wallet-otp", function () {
 
     var walletType = $(this).data('payment_type');
     var member_id = $('#member_id').text()
-    console.log(member_id);
     send_wallet_otp(walletType, member_id)
 });
 
@@ -2733,7 +2729,7 @@ function send_wallet_otp(walletType, member_id) {
     if (walletType == 'custom_pay_3') {
         wallet = 'Redeem Wallet';
     }
-
+    
     if (walletType == 'custom_pay_4') {
         wallet = 'Armada Wallet';
     }
@@ -2745,6 +2741,22 @@ function send_wallet_otp(walletType, member_id) {
         success: function (response) {
             if (response.Status == "Success") {
                 toastr.success('Otp sent successfully');
+                if (walletType == 'Product Wallet') {
+
+                }
+
+                if (walletType == 'Purchase Wallet') {
+
+                }
+
+                if (walletType == 'Redeem Wallet') {
+
+                }
+                
+                if (walletType == 'Armada Wallet') {
+
+                }
+
             } else {
                 console.log(response)
             }

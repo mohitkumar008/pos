@@ -26,7 +26,7 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         Route::post('/business/register/check-email', 'BusinessController@postCheckEmail')->name('business.postCheckEmail');
     
         Route::get('/invc/{token}', 'SellPosController@showInvoice')
-            ->name('show_invoice');
+        ->name('show_invoice');
         Route::get('/quote/{token}', 'SellPosController@showInvoice')
             ->name('show_quote');
     

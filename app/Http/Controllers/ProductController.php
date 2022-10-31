@@ -326,12 +326,12 @@ class ProductController extends Controller
         $tax_dropdown = TaxRate::forBusinessDropdown($business_id, false);
         $taxes = $tax_dropdown['tax_rates'];
 
-        $business_locations = BusinessLocation::forDropdown($business_id, true);
+        $business_locations = BusinessLocation::forDropdown($business_id,true);
         $business_locations->prepend(__('lang_v1.none'), 'none');
-
+        
         // Get locations for edit product location modal
         $business_locations_2 = BusinessLocation::forDropdown($business_id);
-        
+
         if ($this->moduleUtil->isModuleInstalled('Manufacturing') && (auth()->user()->can('superadmin') || $this->moduleUtil->hasThePermissionInSubscription($business_id, 'manufacturing_module'))) {
             $show_manufacturing_data = true;
         } else {
@@ -2184,8 +2184,9 @@ class ProductController extends Controller
         $product = Product::where('business_id', $business_id)
                             ->with(['variations', 'variations.product_variation'])
                             ->findOrFail($id);
-        
+                            
         $location_ids = $product->product_locations->pluck('id');
+        // dd($location_ids);
         //Get all business locations
         $business_locations = BusinessLocation::forDropdown($business_id, false, false,  true,  true, $location_ids);
         
@@ -2276,7 +2277,7 @@ class ProductController extends Controller
                 ->with(compact('notification', 'date_format', 'business_locations'));
         } else {
             return view('product.add-hsn')
-                ->with(compact('date_format','business_locations'));
+                ->with(compact('date_format', 'business_locations'));
         }
     }
 
@@ -2377,7 +2378,7 @@ class ProductController extends Controller
 
         return redirect('products/add-hsn')->with('status', $output);
     }
-
+    
     public function storeBarcode(Request $request){
 
         if (!auth()->user()->can('product.add_hsn')) {

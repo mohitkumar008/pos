@@ -452,14 +452,6 @@
               </label>
             </div>
           </div>
-          <div class="col-md-12">
-            <div class="checkbox">
-              <label>
-                {!! Form::checkbox('permissions[]', 'stock_adjustment.update_status', in_array('purchase.update_status', $role_permissions),['class' => 'input-icheck']); !!}
-                {{ __('lang_v1.stock_adjustment_update_status') }}
-              </label>
-            </div>
-          </div>
         </div>
         </div>
         <hr>

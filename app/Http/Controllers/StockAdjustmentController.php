@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use DB;
+use App\BusinessLocation;
 
-use Datatables;
-
-use App\Transaction;
 use App\PurchaseLine;
 
-use App\BusinessLocation;
+use App\Transaction;
 use App\Utils\ModuleUtil;
-use App\Utils\ProductUtil;
 
-use App\StockAdjustmentLine;
-use Illuminate\Http\Request;
+use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
+use Datatables;
+
+use DB;
+use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
+use App\StockAdjustmentLine;
 
 class StockAdjustmentController extends Controller
 {
@@ -492,7 +492,7 @@ class StockAdjustmentController extends Controller
         }
         return $output;
     }
-
+    
     public function approveStockAdjustment($id)
     {
         if (!auth()->user()->can('stock_adjustment.update_status')) {
@@ -565,5 +565,4 @@ class StockAdjustmentController extends Controller
 
         return redirect('stock-adjustments')->with('status', $output);
     }
-
 }

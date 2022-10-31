@@ -53,7 +53,9 @@
             @endcomponent
         </div>
     </div>
+
 </section>
+<!-- /.content -->
 
 
 <!-- Content Header (Page header) -->
