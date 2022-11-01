@@ -87,6 +87,7 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         Route::get('/delete-media/{media_id}', 'ProductController@deleteMedia');
         Route::post('/products/mass-deactivate', 'ProductController@massDeactivate');
         Route::get('/products/activate/{id}', 'ProductController@activate');
+        Route::get('/products/approve/{id}', 'ProductController@approve');
         Route::get('/products/view-product-group-price/{id}', 'ProductController@viewGroupPrice');
         Route::get('/products/add-selling-prices/{id}', 'ProductController@addSellingPrices');
         Route::post('/products/save-selling-prices', 'ProductController@saveSellingPrices');

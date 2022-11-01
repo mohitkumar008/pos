@@ -38,6 +38,7 @@ return [
     'product.create' => 'Add product',
     'product.update' => 'Edit product',
     'product.delete' => 'Delete product',
+    'product.approve' => 'Approve product',
 
     'purchase.view' => 'View purchase & Stock Adjustment',
     'purchase.create' => 'Add purchase & Stock Adjustment',

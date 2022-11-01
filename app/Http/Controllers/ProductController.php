@@ -112,6 +112,7 @@ class ProductController extends Controller
                 'products.image',
                 'products.enable_stock',
                 'products.is_inactive',
+                'products.is_approve',
                 'products.not_for_selling',
                 'products.product_custom_field1',
                 'products.product_custom_field2',
@@ -160,7 +161,10 @@ class ProductController extends Controller
             
             if ($active_state == 'inactive') {
                 $products->Inactive();
-            } else {
+            }  
+            elseif ($active_state == 'pending') {
+                $products->where('products.is_approve', 0);
+            }else {
                 $products->Active();
             }
             
@@ -218,6 +222,11 @@ class ProductController extends Controller
                             '<li><a href="' . action('ProductController@activate', [$row->id]) . '" class="activate-product"><i class="fas fa-check-circle"></i> ' . __("lang_v1.reactivate") . '</a></li>';
                         }
 
+                        if ($row->is_approve == 0  && (auth()->user()->can('product.approve')))  {
+                            $html .=
+                            '<li><a href="' . action('ProductController@approve', [$row->id]) . '" class="approve-product"><i class="fa fa-bullseye"></i> ' . __("messages.approve") . '</a></li>';
+                        }
+
                         $html .= '<li class="divider"></li>';
 
                         if ($row->enable_stock == 1 && auth()->user()->can('product.opening_stock')) {
@@ -254,7 +263,7 @@ class ProductController extends Controller
                 )
                 ->editColumn('product', function ($row) use ($is_woocommerce) {
                     $product = $row->is_inactive == 1 ? $row->product . ' <span class="label bg-gray">' . __("lang_v1.inactive") .'</span>' : $row->product;
-
+                    $product .= $row->is_approve == 0 ? ' <span class="label bg-red">' . __("lang_v1.pending") .'</span>' : "";
                     $product = $row->not_for_selling == 1 ? $product . ' <span class="label bg-gray">' . __("lang_v1.not_for_selling") .
                         '</span>' : $product;
                     
@@ -381,7 +390,7 @@ class ProductController extends Controller
         $brands = Brands::forDropdown($business_id);
         $units = Unit::forDropdown($business_id, true);
 
-        $tax_dropdown = TaxRate::forBusinessDropdown($business_id, true, true);
+        $tax_dropdown = TaxRate::forBusinessDropdown($business_id, false, true,  true, true);
         $taxes = $tax_dropdown['tax_rates'];
         $tax_attributes = $tax_dropdown['attributes'];
 
@@ -1793,6 +1802,40 @@ class ProductController extends Controller
     }
 
     /**
+     * Approve the specified resource from storage.
+     *
+     * @param  \App\Product  $product
+     * @return \Illuminate\Http\Response
+     */
+    public function approve($id)
+    {
+        if (!auth()->user()->can('product.update')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (request()->ajax()) {
+            try {
+                $business_id = request()->session()->get('user.business_id');
+                $product = Product::where('id', $id)
+                                ->where('business_id', $business_id)
+                                ->update(['is_approve' => 1]);
+
+                $output = ['success' => true,
+                                'msg' => __("lang_v1.approve_success")
+                            ];
+            } catch (\Exception $e) {
+                \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+                
+                $output = ['success' => false,
+                                'msg' => __("messages.something_went_wrong")
+                            ];
+            }
+
+            return $output;
+        }
+    }
+
+    /**
      * Deletes a media file from storage and database.
      *
      * @param  int  $media_id
@@ -1842,6 +1885,7 @@ class ProductController extends Controller
             
             $query = Product::where('business_id', $api_settings->business_id)
                             ->active()
+                            ->where('is_approve', 1)
                             ->with(['brand', 'unit', 'category', 'sub_category',
                                 'product_variations', 'product_variations.variations', 'product_variations.variations.media',
                                 'product_variations.variations.variation_location_details' => function ($q) use ($location_id) {
@@ -2373,10 +2417,10 @@ class ProductController extends Controller
             $output = ['success' => 0,
                             'msg' => "Message:" . $e->getMessage()
                         ];
-            return redirect('products/add-hsn')->with('notification', $output);
+            return redirect('products/add-hsn-or-barcode')->with('notification', $output);
         }
 
-        return redirect('products/add-hsn')->with('status', $output);
+        return redirect('products/add-hsn-or-barcode')->with('status', $output);
     }
     
     public function storeBarcode(Request $request){
@@ -2401,7 +2445,7 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             // Remove products from selected location
-            $this->productUtil->updateProductLocations($business_id, $product_ids, $location_id, 'remove');
+            DB::table('product_locations')->where(['location_id'=>$location_id])->delete();
 
             // Add new brarcodes to selected location
             ini_set('max_execution_time', 0);

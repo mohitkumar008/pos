@@ -36,13 +36,17 @@ class TaxRate extends Model
         $business_id,
         $prepend_none = true,
         $include_attributes = false,
-        $exclude_for_tax_group = true
+        $exclude_for_tax_group = true,
+        $exclude_igst_tax_group = false
     ) {
         $all_taxes = TaxRate::select(DB::raw("CONCAT(name,'-',floor(amount),'%') AS taxWithRate"),'tax_rates.*')
                         ->where('business_id', $business_id);
 
         if ($exclude_for_tax_group) {
             $all_taxes->ExcludeForTaxGroup();
+        }
+        if ($exclude_igst_tax_group) {
+            $all_taxes->where(['is_tax_group'=>1,'for_tax_group'=>0]);
         }
         $result = $all_taxes->get();
         $tax_rates = $result->pluck('taxWithRate', 'id');

@@ -1545,6 +1545,7 @@ class ProductUtil extends Util
     public function filterProduct($business_id, $search_term, $location_id = null, $not_for_selling = null, $price_group_id = null, $product_types = [], $search_fields = [], $check_qty = false, $search_type = 'like'){
         $query = Product::join('variations', 'products.id', '=', 'variations.product_id')
                 ->active()
+                ->where('is_approve', 1)
                 ->whereNull('variations.deleted_at')
                 ->leftjoin('units as U', 'products.unit_id', '=', 'U.id')
                 ->leftjoin(

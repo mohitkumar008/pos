@@ -59,7 +59,7 @@
         <div class="col-md-3">
             <br>
             <div class="form-group">
-                {!! Form::select('active_state', ['active' => __('business.is_active'), 'inactive' => __('lang_v1.inactive')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'active_state', 'placeholder' => __('lang_v1.all')]); !!}
+                {!! Form::select('active_state', ['active' => __('business.is_active'), 'inactive' => __('lang_v1.inactive'), 'pending' => __('lang_v1.pending')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'active_state', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
 
@@ -364,6 +364,24 @@
             })
 
             $('table#product_table tbody').on('click', 'a.activate-product', function(e){
+                e.preventDefault();
+                var href = $(this).attr('href');
+                $.ajax({
+                    method: "get",
+                    url: href,
+                    dataType: "json",
+                    success: function(result){
+                        if(result.success == true){
+                            toastr.success(result.msg);
+                            product_table.ajax.reload();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    }
+                });
+            });
+
+            $('table#product_table tbody').on('click', 'a.approve-product', function(e){
                 e.preventDefault();
                 var href = $(this).attr('href');
                 $.ajax({

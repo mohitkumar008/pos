@@ -389,10 +389,12 @@ class PurchaseController extends Controller
             }
 
             $transaction = Transaction::create($transaction_data);
+
             
             $purchase_lines = [];
             $purchases = $request->input('purchases');
-
+            
+            // dd($transaction, $purchases, $currency_details, $enable_product_editing);
             $this->productUtil->createOrUpdatePurchaseLines($transaction, $purchases, $currency_details, $enable_product_editing);
 
             //Add Purchase payments

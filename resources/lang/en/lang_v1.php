@@ -1401,4 +1401,5 @@ return [
     'stock_adjustment_update_status' => 'Update stock adjustment status',
     'requested_qty' => 'Requested Quantity',
     'approved_qty' => 'Approved Quantity',
+    'approve_success' => 'Approved successfully',
 ];
