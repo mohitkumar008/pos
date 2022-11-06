@@ -20,7 +20,7 @@
     <div class="col-sm-4">
         <div class="form-group">
             {!! Form::label('location_to', __('lang_v1.location_to').':*') !!}
-            {!! Form::select('location_to', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'location_to']); !!}
+            {!! Form::select('location_to', $business_locations_2, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'location_to']); !!}
         </div>
     </div>
     <div class="col-sm-4">

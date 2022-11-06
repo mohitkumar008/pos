@@ -410,6 +410,14 @@ class PurchaseController extends Controller
             //Adjust stock over selling if found
             $this->productUtil->adjustStockOverSelling($transaction);
 
+            // Add product to location
+            $location_id[] = $request->input('location_id');
+            $product_ids = [];
+            foreach($purchases as $purchase) {
+                $product_ids[] = $purchase['product_id'];
+            }
+            $this->productUtil->updateProductLocations($business_id, $product_ids, $location_id, 'add');
+
             $this->transactionUtil->activityLog($transaction, 'added');
             
             DB::commit();

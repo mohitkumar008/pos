@@ -65,7 +65,7 @@ class StockTransferController extends Controller
 
         
         $business_locations = BusinessLocation::forDropdown($business_id, false);
-        // dd($business_locations);
+        $business_locations_2 = BusinessLocation::forDropdown($business_id, false, false, true, false);
 
         if (request()->ajax()) {
             $edit_days = request()->session()->get('business.transaction_edit_days');
@@ -179,7 +179,7 @@ class StockTransferController extends Controller
                 ->make(true);
         }
 
-        return view('stock_transfer.index')->with(compact('statuses','business_locations'));
+        return view('stock_transfer.index')->with(compact('statuses','business_locations', 'business_locations_2'));
     }
 
     /**
@@ -201,7 +201,7 @@ class StockTransferController extends Controller
         }
 
         $business_locations = BusinessLocation::forDropdown($business_id);
-        $business_locations_2 = BusinessLocation::forDropdown($business_id);
+        $business_locations_2 = BusinessLocation::forDropdown($business_id, false, false, true, false);
         $statuses = $this->stockTransferStatuses();
 
         return view('stock_transfer.create')
