@@ -136,7 +136,17 @@ class StockTransferController extends Controller
                 ->addColumn('action', function ($row) use ($edit_days) {
                     $html = '<button type="button" title="' . __("stock_adjustment.view_details") . '" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal" data-href="' . action('StockTransferController@show', [$row->id]) . '"><i class="fa fa-eye" aria-hidden="true"></i> ' . __('messages.view') . '</button>';
 
-                    $html .= ' <a href="#" class="print-invoice btn btn-info btn-xs" data-href="' . action('StockTransferController@printInvoice', [$row->id]) . '"><i class="fa fa-print" aria-hidden="true"></i> '. __("messages.print") .'</a>';
+                    $html .= ' <div class="btn-group">
+                                <button type="button" class="btn btn-info dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-print" aria-hidden="true"></i>'. __("messages.print") . '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>
+                                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                        <li>
+                                        <a href="#" class="print-invoice" data-href="' . action('StockTransferController@printInvoice', [$row->id, 'type'=>'delivery-challan']) . '">'. __("messages.delivery_challan") .'</a>
+                                        </li>
+                                        <li>
+                                        <a href="#" class="print-invoice" data-href="' . action('StockTransferController@printInvoice', [$row->id, 'type'=>'tax-invoice']) . '">'. __("messages.tax_invoice") .'</a>
+                                        </li>
+                                    </ul>
+                                </div>';
 
                     $date = \Carbon::parse($row->transaction_date)
                         ->addDays($edit_days);
@@ -716,11 +726,11 @@ class StockTransferController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function printInvoice($id)
+    public function printInvoice(Request $request, $id)
     {
         try {
             $business_id = request()->session()->get('user.business_id');
-            
+            $print_format = $request->type;            
             $sell_transfer = Transaction::where('business_id', $business_id)
                                 ->where('id', $id)
                                 ->where('type', 'sell_transfer')
@@ -793,7 +803,7 @@ class StockTransferController extends Controller
 
 
             $output = ['success' => 1, 'receipt' => [], 'print_title' => $sell_transfer->ref_no];
-            $output['receipt']['html_content'] = view('stock_transfer.print', compact('sell_transfer', 'location_details', 'lot_n_exp_enabled','output_taxes'))->render();
+            $output['receipt']['html_content'] = view('stock_transfer.print', compact('sell_transfer', 'location_details', 'lot_n_exp_enabled','output_taxes','print_format'))->render();
         } catch (\Exception $e) {
             \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
             

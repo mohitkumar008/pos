@@ -15,11 +15,29 @@
         <div class="col-sm-12">
             <div class="alert alert-danger alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                @if(!empty($notification['msg']))
+                @if(!empty($notification['msg']) || !empty($notification['hsnErrArray']))
                 {{$notification['msg']}}
-                @elseif(session('notification.msg'))
+                @endif
+
+                @if(session('notification.msg'))
                 {{ session('notification.msg') }}
                 @endif
+
+                @if(session('notification.skuErrArray'))
+                <ul>
+                    @foreach (session('notification.skuErrArray') as $list)
+                        <li>{{$list}}</li>
+                    @endforeach
+                </ul>
+                @endif
+                @if(session('notification.hsnErrArray'))
+                <ul>
+                    @foreach (session('notification.hsnErrArray') as $list)
+                        <li>{{$list}}</li>
+                    @endforeach
+                </ul>
+                @endif
+                
             </div>
         </div>
     </div>

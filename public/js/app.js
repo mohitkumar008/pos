@@ -1211,7 +1211,17 @@ $(document).ready(function() {
         serverSide: true,
         bPaginate: false,
         buttons: [],
-        ajax: '/business-location',
+        // ajax: '/business-location',
+        ajax: {
+            url: '/business-location',
+            data: function (d) {
+                if ($('#business_running_status').length) {
+                    d.status = $('#business_running_status').val();
+                }
+
+                d = __datatable_ajax_callback(d);
+            },
+        },
         columnDefs: [
             {
                 targets: 11,
@@ -1307,6 +1317,13 @@ $(document).ready(function() {
             },
         })
     });
+    $(document).on(
+        'change',
+        '#business_running_status',
+        function () {
+            business_locations.ajax.reload();
+        }
+    );
 
     if ($('#header_text').length) {
         init_tinymce('header_text');

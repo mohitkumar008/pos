@@ -109,6 +109,7 @@ $(document).ready(function () {
     });
     $('#customer_id').on('select2:select', function (e) {
         var data = e.params.data;
+        var customer_id = data.id;
         if (data.pay_term_number) {
             $('input#pay_term_number').val(data.pay_term_number);
         } else {
@@ -134,6 +135,9 @@ $(document).ready(function () {
             $('#price_group').val('');
             $('#price_group').change();
         }
+        $('#wallet_option_dropdown').hide();
+        $('#pos-finalize').show();
+        get_all_wallet_ammount(customer_id);
     });
 
     set_default_customer();
@@ -494,6 +498,7 @@ $(document).ready(function () {
                 if (result.success == 1) {
                     reset_pos_form();
                     toastr.success(result.msg);
+                    $('#wallet-options').html('');
                 } else {
                     toastr.error(result.msg);
                 }
@@ -565,51 +570,8 @@ $(document).ready(function () {
         }
 
         var customer_id = $('select#customer_id').val();
-
-        $.ajax({
-            method: 'POST',
-            url: '/get_all_wallet_ammount/' + customer_id,
-            dataType: 'json',
-            success: function (result) {
-                if (result.success == true) {
-
-                    var product_wallet = Number(result.product_wallet ? parseFloat(result.product_wallet) : '0.0').toFixed(2);
-                    var purchase_wallet = Number(result.purchase_wallet ? parseFloat(result.purchase_wallet) : '0.0').toFixed(2);
-                    var redeem_wallet = Number(result.redeem_wallet ? parseFloat(result.redeem_wallet) : '0.0').toFixed(2);
-                    var armada_wallet = Number(result.armada_wallet ? parseFloat(result.armada_wallet) : '0.0').toFixed(2);
-
-                    var member_id = result.member_id;
-
-                    var html = '<div class="box-tools pull-right">'
-                        + '<button type="button" class="btn btn-box-tool reset_payment_modal"  title="Reset Payment Form"><i class="fa fa-redo fa-2x"></i></button>'
-                        + '</div><strong class="text-orange">Member ID:</strong> <span id="member_id">' + member_id + '</span> <br>'
-
-                    if (product_wallet > 0) {
-                        html += '<strong>Product Wallet:</strong><span>' + product_wallet + '</span><input type="hidden" name="product_wallet_bal" id="custom_payment_1" value="' + product_wallet + '">'
-                    }
-
-                    if (purchase_wallet > 0) {
-                        html += '<strong>Purchase Wallet:</strong><span>' + purchase_wallet + '</span><input type="hidden" name="purchase_wallet_bal" id="custom_payment_2" value="' + purchase_wallet + '">'
-                    }
-
-                    if (redeem_wallet > 0) {
-                        html += '<strong>Redeem Wallet:</strong><span>' + redeem_wallet + '</span><input type="hidden" name="redeem_wallet_bal" id="custom_payment_3" value="' + redeem_wallet + '">'
-                    }
-                    
-                    if (armada_wallet > 0) {
-                        html += '<strong>Armada Wallet:</strong><span>' + armada_wallet + '</span><input type="hidden" name="armada_wallet_bal" id="custom_payment_4" value="' + armada_wallet + '">'
-                    }
-
-
-                    $('#advance_details').html(html)
-                } else {
-                    // todo
-                }
-            },
-            error: function (response) {
-                console.log(response)
-            }
-        });
+        // get_all_wallet_ammount(customer_id);
+        
         $('#advance_details').html('')
 
         $('#payment_rows_div')
@@ -636,6 +598,168 @@ $(document).ready(function () {
         $('#modal_payment').modal('show');
     });
 
+    // Proceed payment wiht wallet
+    $('#wallet_option_dropdown').change(function () {
+        
+        //Check if product is present or not.
+        if ($('table#pos_table tbody').find('.product_row').length <= 0) {
+            toastr.warning(LANG.no_products_added);
+            $('select#wallet_option_dropdown').val('');
+            return false;
+        }
+
+        if ($('#reward_point_enabled').length) {
+            var validate_rp = isValidatRewardPoint();
+            if (!validate_rp['is_valid']) {
+                toastr.error(validate_rp['msg']);
+                $('select#wallet_option_dropdown').val('');
+                return false;
+            }
+        }
+
+        var payment_type = $(this).val();
+        var member_id = $('#member_id').text()
+        if (payment_type == 'custom_pay_1' || payment_type == 'custom_pay_2' || payment_type == 'custom_pay_3' || payment_type == 'custom_pay_4') {
+        
+            var walletType='';
+            
+            if(payment_type == 'custom_pay_1'){
+                walletType = 'Product Wallet';
+            }
+            
+            if(payment_type == 'custom_pay_2'){
+                walletType = 'Purchase Point';
+            }
+            
+            if(payment_type == 'custom_pay_3'){
+                walletType = 'Redeem Point';
+            }
+            
+            if(payment_type == 'custom_pay_4'){
+                walletType = 'Armada Point';
+            }
+    
+            var message = 'Do you really want to proceed with ' + walletType;
+    
+            swal({
+                title: message,
+                icon: 'warning',
+                buttons: true,
+                dangerMode: false,
+            }).then(confirm => {
+                if (confirm) {
+                    $('.payment_box').remove();
+                    // Removing discount on Product wallet or Armada Point
+                    if(payment_type == 'custom_pay_1' || payment_type == 'custom_pay_4'){
+                        $('select.row_discount_type').val('fixed');
+                        $('input.row_discount_amount').val(0).trigger('change');
+                    }
+
+                    $('button#add-payment-row').trigger('click');
+                    
+                    $('#advance_details').html('')
+
+                    $('#payment_rows_div')
+                        .find('.wallet_otp')
+                        .attr('readonly', false);
+
+                    $('#payment_rows_div')
+                        .find('.payment-amount')
+                        .first()
+                        .attr('readonly', false);
+
+                    $('#payment_rows_div')
+                        .find('.payment_types_dropdown')
+                        .first()
+                        .attr('readonly', false);
+
+                    $('#modal_payment').modal('show');
+                    send_wallet_otp(payment_type, member_id)
+                } else {
+                    $('select#wallet_option_dropdown').val('').trigger('change');
+                }
+            });
+        }
+    });
+
+    function reset_discount() {
+        var row_edit_product_price_model = $('.row_edit_product_price_model');
+        row_edit_product_price_model.each(function(){
+            var row_discount_amount = $(this).find('.row_discount_amount');
+            var row_discount_type = $(this).find('.row_discount_type');
+            var default_row_discount_amount = $(this).find('.default_row_discount_amount');
+            var default_row_discount_type = $(this).find('.default_row_discount_type');
+            // Change discount to default_row_discount_amount
+            row_discount_amount.val(default_row_discount_amount.val()).trigger('change');
+            row_discount_type.val(default_row_discount_type.val()).trigger('change');
+
+        });
+    }
+    
+    function get_all_wallet_ammount(customer_id) {
+        $('#wallet-options').html('');
+        var location_id = $('input#location_id').val();
+        $.ajax({
+            method: 'POST',
+            url: '/get_all_wallet_ammount/' + customer_id,
+            data: {location_id:location_id},
+            dataType: 'json',
+            success: function (result) {
+                if (result.success == true) {
+                    $('#wallet_option_dropdown').show();
+                    $('#pos-finalize').hide();
+                    var product_wallet = Number(result.product_wallet ? parseFloat(result.product_wallet) : '0.0').toFixed(2);
+                    var purchase_wallet = Number(result.purchase_wallet ? parseFloat(result.purchase_wallet) : '0.0').toFixed(2);
+                    var redeem_wallet = Number(result.redeem_wallet ? parseFloat(result.redeem_wallet) : '0.0').toFixed(2);
+                    var armada_wallet = Number(result.armada_wallet ? parseFloat(result.armada_wallet) : '0.0').toFixed(2);
+
+                    var member_id = result.member_id;
+
+                    var html ='<div><strong class="text-orange">Member ID:</strong> <span id="member_id">' + member_id + '</span> <br>';
+
+                    if (product_wallet > 0) {
+                        html += '<strong>Product Wallet:</strong><span>' + product_wallet + '</span><input type="hidden" name="product_wallet_bal" id="custom_payment_1" value="' + product_wallet + '">&nbsp;&nbsp;'
+                    }
+
+                    if (purchase_wallet > 0) {
+                        html += '<strong>Purchase Wallet:</strong><span>' + purchase_wallet + '</span><input type="hidden" name="purchase_wallet_bal" id="custom_payment_2" value="' + purchase_wallet + '">&nbsp;&nbsp;'
+                    }
+
+                    if (redeem_wallet > 0) {
+                        html += '<strong>Redeem Wallet:</strong><span>' + redeem_wallet + '</span><input type="hidden" name="redeem_wallet_bal" id="custom_payment_3" value="' + redeem_wallet + '">&nbsp;&nbsp;'
+                    }
+                    
+                    if (armada_wallet > 0) {
+                        html += '<strong>Armada Wallet:</strong><span>' + armada_wallet + '</span><input type="hidden" name="armada_wallet_bal" id="custom_payment_4" value="' + armada_wallet + '">'
+                    }
+
+                    html += '</div>';
+                    $('#wallet-options').html(html)
+
+                    html += `<div class="box-tools pull-right"><button type="button" class="btn btn-box-tool reset_payment_modal"  title="Reset Payment Form"><i class="fa fa-redo fa-2x"></i></button></div>`;
+                    $('#advance_details').html(html)
+
+                    // Add wallet to dropdown
+                    var wallet_options = result.wallet_options;
+                    Object.keys(wallet_options).forEach(function(key) {
+                        var options = `<option value="${key}">${wallet_options[key]}</option>`;
+                        var optionExists = ($('#wallet_option_dropdown option[value=' + key + ']').length > 0);
+                        if(!optionExists)
+                        {
+                            $('#wallet_option_dropdown').append(options);                      
+                        }
+                    });
+                } else {
+                    // todo
+                }
+            },
+            error: function (response) {
+                console.log(response)
+            }
+        });
+    }    
+
+
     $('#modal_payment').one('shown.bs.modal', function () {
         $('#modal_payment')
             .find('input')
@@ -648,7 +772,11 @@ $(document).ready(function () {
     });
 
     $('#modal_payment').on('hidden.bs.modal', function () {
+        reset_discount();
+        $('.payment_box').remove();
+        $('select#wallet_option_dropdown').val('').trigger('change');
         $('.remove_payment_row').closest('.payment_row').parent().remove();
+        $('button#add-payment-row').trigger('click');
         calculate_balance_due();
 
     });
@@ -685,6 +813,13 @@ $(document).ready(function () {
         //Check for remaining balance & add it in 1st payment row
         var total_payable = __read_number($('input#final_total_input'));
         var total_paying = __read_number($('input#total_paying_input'));
+        // if(pay_method == 'cash'){
+        //     var bal_due = 0;
+        //     __write_number($('input#in_balance_due'), bal_due);
+        //     $('span.balance_due').text(__currency_trans_from_en(bal_due, true));
+        //     total_paying = total_payable;
+        // }
+        console.log(total_payable, total_paying, pay_method);
         if (total_payable > total_paying) {
             var bal_due = total_payable - total_paying;
 
@@ -2502,7 +2637,6 @@ $(document).on('click', '.reset_payment_modal', function (e) {
 
 
 $(document).on('change', '#payment_rows_div .col-md-12:nth-child(1) .payment_types_dropdown', function (e) {
-
     // pos changes start
     $('#payment_rows_div .col-md-12:nth-child(1) .remove_payment_row').closest('.box-header').first().remove();
     // pos changes end
@@ -2511,7 +2645,8 @@ $(document).on('change', '#payment_rows_div .col-md-12:nth-child(1) .payment_typ
         $('select#select_location_id')
             .find(':selected')
             .data('default_payment_accounts') : $('#location_id').data('default_payment_accounts');
-    var payment_type = $(this).val();
+    var payment_type = $('#wallet_option_dropdown').val();
+    // var payment_type = $(this).val();
     var payment_row = $(this).closest('.payment_row');
     if (payment_type && payment_type != 'advance') {
         var default_account = default_accounts && default_accounts[payment_type]['account'] ?
@@ -2564,110 +2699,82 @@ $(document).on('change', '#payment_rows_div .col-md-12:nth-child(1) .payment_typ
 
     if (payment_type == 'custom_pay_1' || payment_type == 'custom_pay_2' || payment_type == 'custom_pay_3' || payment_type == 'custom_pay_4') {
         
-        var walletType='';
-        
-        if(payment_type == 'custom_pay_1'){
-            walletType = 'Product Wallet';
-        }
-        
-        if(payment_type == 'custom_pay_2'){
-            walletType = 'Purchase Point';
-        }
-        
-        if(payment_type == 'custom_pay_3'){
-            walletType = 'Redeem Point';
-        }
-        
-        if(payment_type == 'custom_pay_4'){
-            walletType = 'Armada Point';
-        }
+        // var member_id = $('#member_id').text()
 
-        var message = 'Do you really want to proceed with ' + walletType;
-        var member_id = $('#member_id').text()
+        if(payment_type && member_id){
+            // send_wallet_otp(payment_type, member_id)
 
-        swal({
-            title: message,
-            icon: 'warning',
-            buttons: true,
-            dangerMode: false,
-        }).then(confirm => {
-            if (confirm) {
-                send_wallet_otp(payment_type, member_id)
+            // let total_payable = __read_number($('input#final_total_input'));
+            let discount_payable = total_payable;
 
-                // let total_payable = __read_number($('input#final_total_input'));
-                let discount_payable = total_payable;
+            let product_wallet = $('#custom_payment_1').val();
+            let purchase_wallet = $('#custom_payment_2').val();
+            let redeem_wallet = $('#custom_payment_3').val();
+            let armada_wallet = $('#custom_payment_4').val();
 
+            let discount = 0;
 
+            if (payment_type == 'custom_pay_1') {
 
-                let product_wallet = $('#custom_payment_1').val();
-                let purchase_wallet = $('#custom_payment_2').val();
-                let redeem_wallet = $('#custom_payment_3').val();
-                let armada_wallet = $('#custom_payment_4').val();
+                discount_payable = total_payable;
 
-                let discount = 0;
-
-                if (payment_type == 'custom_pay_1') {
-
-                    discount_payable = total_payable;
-
-                    if (product_wallet >= discount_payable) {
-                        discount = discount_payable;
-                    } else {
-                        discount = product_wallet;
-                    }
-                } else if (payment_type == 'custom_pay_2') {
-
-                    discount_payable = total_payable * 33.33 / 100;
-
-                    if (purchase_wallet >= discount_payable) {
-                        discount = discount_payable;
-                    } else {
-                        discount = purchase_wallet;
-                    }
-                } else if (payment_type == 'custom_pay_3') {
-
-                    discount_payable = total_payable / 10;
-
-                    if (redeem_wallet >= discount_payable) {
-                        discount = discount_payable;
-                    } else {
-                        discount = redeem_wallet;
-                    }
-                } else if (payment_type == 'custom_pay_4') {
-
-                    discount_payable = total_payable;
-
-                    if (armada_wallet >= discount_payable) {
-                        discount = discount_payable;
-                    } else {
-                        discount = armada_wallet;
-                    }
+                if (product_wallet >= discount_payable) {
+                    discount = discount_payable;
+                } else {
+                    discount = product_wallet;
                 }
-                $('#pos-save').attr('disabled', 'true');
+            } else if (payment_type == 'custom_pay_2') {
 
-                $("#payment_rows_div:first-child .payment-amount").val(discount).trigger('change').attr('readonly', true);
-                $('#payment_rows_div')
-                    .find('.wallet_otp')
-                    .attr('readonly', false);
+                discount_payable = total_payable * 33.33 / 100;
 
-                let remaining_payable = total_payable - discount;
+                if (purchase_wallet >= discount_payable) {
+                    discount = discount_payable;
+                } else {
+                    discount = purchase_wallet;
+                }
+            } else if (payment_type == 'custom_pay_3') {
 
-                console.log('total - ' + total_payable + ' remaining - ' + discount_payable + ' product - ' + product_wallet + ' purchase - ' + purchase_wallet + ' redeem - ' + redeem_wallet + ' remaining - ' + remaining_payable)
+                discount_payable = total_payable / 10;
 
-                if (remaining_payable > 0) {
+                if (redeem_wallet >= discount_payable) {
+                    discount = discount_payable;
+                } else {
+                    discount = redeem_wallet;
+                }
+            } else if (payment_type == 'custom_pay_4') {
+
+                discount_payable = total_payable;
+
+                if (armada_wallet >= discount_payable) {
+                    discount = discount_payable;
+                } else {
+                    discount = armada_wallet;
+                }
+            }
+            $('#pos-save').attr('disabled', 'true');
+
+            $("#payment_rows_div:first-child .payment-amount").val(discount).trigger('change').attr('aria-readonly', true);
+            $('#payment_rows_div')
+                .find('.wallet_otp')
+                .attr('readonly', false);
+
+            let remaining_payable = total_payable - discount;
+
+            console.log('total - ' + total_payable + ' remaining - ' + discount_payable + ' product - ' + product_wallet + ' purchase - ' + purchase_wallet + ' redeem - ' + redeem_wallet + ' remaining - ' + remaining_payable)
+
+            $('#payment_rows_div .col-md-12:first-child .payment_types_dropdown').first().val(payment_type).prop('readonly', true);
+            if (remaining_payable > 0) {
+                $('.remove_payment_row').closest('.payment_row').parent().remove();
+                calculate_balance_due();
+                $("button#add-payment-row").trigger('click');
+            } else {
+                if ($('.remove_payment_row').length) {
                     $('.remove_payment_row').closest('.payment_row').parent().remove();
                     calculate_balance_due();
-                    $("button#add-payment-row").trigger('click');
-                } else {
-                    if ($('.remove_payment_row').length) {
-                        $('.remove_payment_row').closest('.payment_row').parent().remove();
-                        calculate_balance_due();
-                    }
                 }
-            } else {
-                $('select.payment_types_dropdown').val('cash').trigger('change');
             }
-        });
+        }
+
     }
 
 });

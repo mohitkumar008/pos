@@ -47,4 +47,6 @@ return [
     'status' => 'Status',
     'approve' => 'Approve',
     'reject' => 'Reject',
+    'delivery_challan' => 'Delivery Challan',
+    'tax_invoice' => 'Tax Invoice',
 ];

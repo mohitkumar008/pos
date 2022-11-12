@@ -809,7 +809,7 @@ class SellPosController extends Controller
         } else {
             $layout = !empty($receipt_details->design) ? 'sale_pos.receipts.' . $receipt_details->design : 'sale_pos.receipts.classic';
 
-            $output['html_content'] = view($layout, compact('receipt_details'))->render();
+            $output['html_content'] = view($layout, compact('receipt_details','business_details'))->render();
         }
         
         return $output;
@@ -1529,7 +1529,7 @@ class SellPosController extends Controller
         $product->default_sell_price = $product->default_sell_price + ($percent * $product->default_sell_price / 100);
         $product->sell_price_inc_tax = $product->sell_price_inc_tax + ($percent * $product->sell_price_inc_tax / 100);
 
-        $tax_dropdown = TaxRate::forBusinessDropdown($business_id, true, true);
+        $tax_dropdown = TaxRate::forBusinessDropdown($business_id, false, true);
 
         $enabled_modules = $this->transactionUtil->allModulesEnabled();
 
@@ -1680,7 +1680,7 @@ class SellPosController extends Controller
             unset($payment_types['custom_pay_4']);
         }
 
-        $customer_wallet = $this->get_all_wallet_ammount($customer_id); 
+        $customer_wallet = $this->get_all_wallet_ammount($request, $customer_id); 
 
         if($customer_wallet != null){
             if($customer_wallet['product_wallet'] <= 0){
@@ -1767,7 +1767,7 @@ class SellPosController extends Controller
                             ->get();
 
         return view('sale_pos.partials.recent_transactions')
-            ->with(compact('transactions', 'transaction_sub_type'));
+            ->with(compact('transactions', 'transaction_sub_type','transaction_status'));
     }
 
     /**
@@ -1833,11 +1833,11 @@ class SellPosController extends Controller
             $location_id = $request->get('location_id');
             $term = $request->get('term');
 
-            $check_qty = false;
             $business_id = $request->session()->get('user.business_id');
             $business = $request->session()->get('business');
             $pos_settings = empty($business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business->pos_settings, true);
-
+            $check_qty = !empty($pos_settings['allow_overselling']) ? false : true;
+            // dd($pos_settings);
             $products = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
                 ->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
                 ->leftjoin(
@@ -1860,6 +1860,7 @@ class SellPosController extends Controller
                         ->where('p.business_id', $business_id)
                         ->where('p.type', '!=', 'modifier')
                         ->where('p.is_inactive', 0)
+                        ->where('p.is_approve', 1)
                         ->where('p.not_for_selling', 0)
                         //Hide products not available in the selected location
                         ->where(function ($q) use ($location_id) {
@@ -2924,8 +2925,10 @@ class SellPosController extends Controller
      * download pdf for given shipment
      *
      */
-    public function get_all_wallet_ammount($customer_id)
+    public function get_all_wallet_ammount(Request $request, $customer_id)
     {
+        $location_id = $request->input('location_id');
+        $payment_types = $this->productUtil->payment_types($location_id, true);
         if($customer_id){
             
             $customer = Contact::find($customer_id);
@@ -2953,6 +2956,12 @@ class SellPosController extends Controller
                 
                 $result  = json_decode($result);
                 if($result->success){
+                    $wallet_options = [];
+                    $wallet_options['custom_pay_1'] = $result->product_wallet > 0 ? $payment_types['custom_pay_1'] : "";
+                    $wallet_options['custom_pay_2'] = $result->product_wallet > 0 ? $payment_types['custom_pay_2'] : "";
+                    $wallet_options['custom_pay_3'] = $result->product_wallet > 0 ? $payment_types['custom_pay_3'] : "";
+                    $wallet_options['custom_pay_4'] = $result->product_wallet > 0 ? $payment_types['custom_pay_4'] : "";
+                    // dd($result);
                     return [
                         'success'=>true,
                         'product_wallet'=>$result->product_wallet,
@@ -2960,6 +2969,7 @@ class SellPosController extends Controller
                         'redeem_wallet'=>$result->redeem_wallet,
                         'armada_wallet'=>$result->armada_wallet,
                         'member_id'=>$customer->custom_field1,
+                        'wallet_options'=>$wallet_options,
                     ];
                 }
                 

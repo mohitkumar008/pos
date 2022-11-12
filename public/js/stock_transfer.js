@@ -111,16 +111,18 @@ $(document).ready(function () {
         },
         'Please select different location'
     );
-
-    // $('form#stock_transfer_form').validate({
-    //     rules: {
-    //         transfer_location_id: {
-    //             notEqual: function () {
-    //                 return $('select#location_id').val();
-    //             },
-    //         },
-    //     },
-    // });
+    $('form#stock_transfer_form').validate({
+        rules: {
+            fieldname: {
+               min: 1
+            },
+            messages: {
+                fieldname: {
+                    min: "Value must be greater than 0"
+                }
+            }
+        }
+    });
 
     // $('#save_stock_transfer').click(function (e) {
     //     e.preventDefault();

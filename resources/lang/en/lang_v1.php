@@ -63,6 +63,7 @@ return [
     'enable_sub_category' => 'Enable Sub-Categories',
     'enable_price_tax' => 'Enable Price & Tax info',
     'enable_purchase_status' => 'Enable Purchase Status',
+    'purchase_complete' => 'Purchase Complete',
     'tooltip_enable_purchase_status' => 'On disable all purchases will be marked as <i>Item Received</i>',
     'recent_product_quantity' => 'Go to product quantity',
     'full_screen' => 'Press F11 to go Full Screen',
@@ -1402,4 +1403,5 @@ return [
     'requested_qty' => 'Requested Quantity',
     'approved_qty' => 'Approved Quantity',
     'approve_success' => 'Approved successfully',
+    'select_wallet' => 'Select Wallet',
 ];

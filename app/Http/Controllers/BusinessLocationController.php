@@ -76,6 +76,14 @@ class BusinessLocationController extends Controller
             if ($permitted_locations != 'all') {
                 $locations->whereIn('business_locations.id', $permitted_locations);
             }
+            if (!empty(request()->status)) {
+                if(request()->status == 'active'){
+                    $locations->where('business_locations.is_active', 1);
+                }
+                elseif(request()->status == 'inactive'){
+                    $locations->where('business_locations.is_active','!=', 1);
+                }
+            }
 
             return Datatables::of($locations)
                 ->addColumn(

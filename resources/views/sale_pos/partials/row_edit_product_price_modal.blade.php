@@ -22,9 +22,11 @@
 					<label>@lang('sale.discount_type')</label>
 						{!! Form::select("products[$row_count][line_discount_type]", ['fixed' => __('lang_v1.fixed'), 'percentage' => __('lang_v1.percentage')], $discount_type , ['class' => 'form-control row_discount_type']); !!}
 				</div>
-				<div class="form-group col-xs-12 col-sm-6 @if(!$edit_discount) hide @endif">
+				<div class="form-group col-xs-12 col-sm-6 @if(!$edit_discount) hide @endif ">
 					<label>@lang('sale.discount_amount')</label>
 						{!! Form::text("products[$row_count][line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number row_discount_amount']); !!}
+						{!! Form::hidden("products[$row_count][default_line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number default_row_discount_amount']); !!}
+						{!! Form::hidden("products[$row_count][default_line_discount_type]", $discount_type, ['class' => 'form-control input_number default_row_discount_type']); !!}
 				</div>
 				@if(!empty($discount))
 					<div class="form-group col-xs-12">

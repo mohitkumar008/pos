@@ -36,6 +36,7 @@ LANG = {
     'confirm_delete_barcode': 'This barcode setting will be deleted.',
     'add_name_as_new_product': 'Add ":term" as new product',
     'no_products_found': 'No matching product found!',
+    'no_products_approve': 'Product not approved!',
     'cancel': 'Cancel',
     'ok': 'OK',
     'view_stock_details': 'View stock for each variation',

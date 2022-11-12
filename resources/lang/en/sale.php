@@ -31,6 +31,7 @@ return [
     'products' => 'Products',
     'unit_price' => 'Unit Price',
     'qty' => 'Quantity',
+    'unit' => 'Unit',
     'total_before_tax' => 'Total Before Tax',
     'subtotal' => 'Subtotal',
     'pos_sale_added' => 'Sale added successfully',

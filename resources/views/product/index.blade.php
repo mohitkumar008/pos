@@ -381,24 +381,6 @@
                 });
             });
 
-            $('table#product_table tbody').on('click', 'a.approve-product', function(e){
-                e.preventDefault();
-                var href = $(this).attr('href');
-                $.ajax({
-                    method: "get",
-                    url: href,
-                    dataType: "json",
-                    success: function(result){
-                        if(result.success == true){
-                            toastr.success(result.msg);
-                            product_table.ajax.reload();
-                        } else {
-                            toastr.error(result.msg);
-                        }
-                    }
-                });
-            });
-
             $(document).on('change', '#product_list_filter_type, #product_list_filter_category_id, #product_list_filter_brand_id, #product_list_filter_unit_id, #product_list_filter_tax_id, #location_id, #active_state, #repair_model_id', 
                 function() {
                     if ($("#product_list_tab").hasClass('active')) {

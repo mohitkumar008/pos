@@ -458,6 +458,14 @@
               </label>
             </div>
           </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
+                {!! Form::checkbox('permissions[]', 'purchase.complete', in_array('purchase.complete', $role_permissions),['class' => 'input-icheck']); !!}
+                {{ __('lang_v1.purchase_complete') }}
+              </label>
+            </div>
+          </div>
         </div>
         </div>
         <hr>

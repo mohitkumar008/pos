@@ -1,9 +1,14 @@
 @php
-
-$delivery_challan='Tax Invoice';
-if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state){
-    $delivery_challan='Delivery Challan';
+$delivery_challan='';
+if($print_format == 'delivery-challan'){
+  $delivery_challan='Delivery Challan';
 }
+elseif($print_format == 'tax-invoice'){
+  $delivery_challan='Tax Invoice';
+}
+// if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state){
+//     $delivery_challan='Delivery Challan';
+// }
 @endphp
 
 <div class="row">
@@ -118,12 +123,16 @@ if(!empty($location_details['sell']->state) && !empty($location_details['purchas
         <tr class="bg-green">
           <th>#</th>
           <th>@lang('sale.product')</th>
-          <th>@lang('HSN/SAC')</th>
+          @if ($print_format == 'tax-invoice')
+            <th>@lang('HSN/SAC')</th>
+          @endif
           <th>@lang('sale.qty')</th>
           <th>@lang('sale.unit')</th>
           <th>@lang('sale.unit_price')</th>
-          <th>@lang('sale.discount')</th>
-          <th>@lang('GST')</th>
+          @if ($print_format == 'tax-invoice')
+            <th>@lang('sale.discount')</th>
+            <th>@lang('GST')</th>
+          @endif
           <th>@lang('sale.subtotal')</th>
         </tr>
         @php 
@@ -149,12 +158,16 @@ if(!empty($location_details['sell']->state) && !empty($location_details['purchas
                 @endif
                @endif
             </td>
-            <td>{{ $sell_lines->product->product_tax?$sell_lines->product->product_tax->name:"" }}</td>
+            @if ($print_format == 'tax-invoice')
+              <td>{{ $sell_lines->product->product_tax?$sell_lines->product->product_tax->name:"" }}</td>
+            @endif
             <td>{{ @format_quantity($sell_lines->quantity) }}</td>
             <td>{{ $sell_lines->product->unit->short_name ?? ""}}</td>
             <td>{{ $sell_lines->unit_price_inc_tax}}</td>
-            <td>{{ $sell_lines->line_discount_amount}}</td>
-            <td>{{ $sell_lines->item_tax}}</td>
+            @if ($print_format == 'tax-invoice')
+              <td>{{ $sell_lines->line_discount_amount}}</td>
+              <td>{{ $sell_lines->item_tax}}</td>
+            @endif
             <td>
               <span class="display_currency" data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax * $sell_lines->quantity }}</span>
             </td>
@@ -194,58 +207,59 @@ if(!empty($location_details['sell']->state) && !empty($location_details['purchas
     </div>
   </div>
 </div>
-
-<div class="row">
-  <div class="col-xs-12">
-    <div class="table-responsive">
-      <table class="table bg-gray table-bordered">
-        <tr class="bg-green">
-            <th rowspan="2">@lang('HSN/SAC')</th>
-            <th rowspan="2">@lang('Taxable amount')</th>
-            
-            @if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state)
-            <th colspan="2">@lang('CGST')</th>
-            <th colspan="2">@lang('SGST')</th>
-            @else
-            <th colspan="2">@lang('IGST')</th>
-            @endif
-            <th rowspan="2">@lang('Total Tax Amount')</th>
-        </tr>
-        
-        <tr class="bg-green">
-            @if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state)
-            <th >@lang('Rate')</th>
-            <th >@lang('Amount')</th>
-            <th >@lang('Rate')</th>
-            <th >@lang('Amount')</th>
-            @else
-            <th >@lang('Rate')</th>
-            <th >@lang('Amount')</th>
-            @endif
-            
-            
-        </tr>
-        @foreach($output_taxes['taxes'] as $key => $tax)
-        
-            <tr class="bg-green">
-                <th >{{$key}}</th>
-                <th >@if(isset($tax['taxable_amount'])) {{$tax['taxable_amount']}} @else - @endif</th>
-                @if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state)
-                <th >@if(isset($tax['CGST'])) {{$tax['CGST']['amount']}}% @else - @endif</th>
-                <th >@if(isset($tax['CGST'])) {{$tax['CGST']['calculated_tax']}} @else - @endif</th>
-                <th >@if(isset($tax['SGST'])) {{$tax['SGST']['amount']}}% @else - @endif</th>
-                <th >@if(isset($tax['SGST'])) {{$tax['SGST']['calculated_tax']}} @else - @endif</th>
-                @else
-                <th >@if(isset($tax['IGST'])) {{$tax['IGST']['amount']}}% @else - @endif</th>
-                <th >@if(isset($tax['IGST'])) {{$tax['IGST']['calculated_tax']}} @else - @endif</th>
-                @endif
-                <th >@if(isset($tax['total_tax'])) {{$tax['total_tax']}} @else - @endif</th>
-            </tr>
-        @endforeach
-      </table>
+@if ($print_format == 'tax-invoice')
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="table-responsive">
+        <table class="table bg-gray table-bordered">
+          <tr class="bg-green">
+              <th rowspan="2">@lang('HSN/SAC')</th>
+              <th rowspan="2">@lang('Taxable amount')</th>
+              
+              @if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state)
+              <th colspan="2">@lang('CGST')</th>
+              <th colspan="2">@lang('SGST')</th>
+              @else
+              <th colspan="2">@lang('IGST')</th>
+              @endif
+              <th rowspan="2">@lang('Total Tax Amount')</th>
+          </tr>
+          
+          <tr class="bg-green">
+              @if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state)
+              <th >@lang('Rate')</th>
+              <th >@lang('Amount')</th>
+              <th >@lang('Rate')</th>
+              <th >@lang('Amount')</th>
+              @else
+              <th >@lang('Rate')</th>
+              <th >@lang('Amount')</th>
+              @endif
+              
+              
+          </tr>
+          @foreach($output_taxes['taxes'] as $key => $tax)
+          
+              <tr class="bg-green">
+                  <th >{{$key}}</th>
+                  <th >@if(isset($tax['taxable_amount'])) {{$tax['taxable_amount']}} @else - @endif</th>
+                  @if(!empty($location_details['sell']->state) && !empty($location_details['purchase']->state) && $location_details['sell']->state == $location_details['purchase']->state)
+                  <th >@if(isset($tax['CGST'])) {{$tax['CGST']['amount']}}% @else - @endif</th>
+                  <th >@if(isset($tax['CGST'])) {{$tax['CGST']['calculated_tax']}} @else - @endif</th>
+                  <th >@if(isset($tax['SGST'])) {{$tax['SGST']['amount']}}% @else - @endif</th>
+                  <th >@if(isset($tax['SGST'])) {{$tax['SGST']['calculated_tax']}} @else - @endif</th>
+                  @else
+                  <th >@if(isset($tax['IGST'])) {{$tax['IGST']['amount']}}% @else - @endif</th>
+                  <th >@if(isset($tax['IGST'])) {{$tax['IGST']['calculated_tax']}} @else - @endif</th>
+                  @endif
+                  <th >@if(isset($tax['total_tax'])) {{$tax['total_tax']}} @else - @endif</th>
+              </tr>
+          @endforeach
+        </table>
+      </div>
     </div>
   </div>
-</div>
+@endif
 <div class="row">
   <div class="col-sm-6">
     <strong>@lang('purchase.additional_notes'):</strong><br>

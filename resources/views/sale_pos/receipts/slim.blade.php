@@ -84,9 +84,10 @@
 					<b>{{ $receipt_details->tax_label2 }}</b> {{ $receipt_details->tax_info2 }}
 				@endif
 
+				<p><b>{{ $business_details->code_label_1 }}</b> {{ $business_details->code_1 }}</p>
 				<!-- Title of receipt -->
 				@if(!empty($receipt_details->invoice_heading))
-					<br/><span class="sub-headings">{!! $receipt_details->invoice_heading !!}</span>
+					<span class="sub-headings">{!! $receipt_details->invoice_heading !!}</span>
 				@endif
 			</p>
 			</div>

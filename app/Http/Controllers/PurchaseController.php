@@ -1,5 +1,5 @@
 <?php
-
+//fghdf
 namespace App\Http\Controllers;
 
 use App\AccountTransaction;
@@ -176,7 +176,7 @@ class PurchaseController extends Controller
                 ->editColumn('name', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$name}}')
                 ->editColumn(
                     'status',
-                    '<a href="#" @if(auth()->user()->can("purchase.update") || auth()->user()->can("purchase.update_status")) class="update_status no-print" data-purchase_id="{{$id}}" data-status="{{$status}}" @endif><span class="label @transaction_status($status) status-label" data-status-name="{{__(\'lang_v1.\' . $status)}}" data-orig-value="{{$status}}">{{__(\'lang_v1.\' . $status)}}
+                    '<a href="#" @if(auth()->user()->can("purchase.update") || auth()->user()->can("purchase.update_status")) class="@if($status != "received"){{"update_status"}} @endif no-print" data-purchase_id="{{$id}}" data-status="{{$status}}" @endif><span class="label @transaction_status($status) status-label" data-status-name="{{__(\'lang_v1.\' . $status)}}" data-orig-value="{{$status}}">{{__(\'lang_v1.\' . $status)}}
                         </span></a>'
                 )
                 ->editColumn(
@@ -211,7 +211,9 @@ class PurchaseController extends Controller
         $business_locations = BusinessLocation::forDropdown($business_id);
         $suppliers = Contact::suppliersDropdown($business_id, false);
         $orderStatuses = $this->productUtil->orderStatuses();
-
+        if (!auth()->user()->can('purchase.complete')) {
+            unset($orderStatuses['received']);
+        }
         return view('purchase.index')
             ->with(compact('business_locations', 'suppliers', 'orderStatuses'));
     }
@@ -238,6 +240,9 @@ class PurchaseController extends Controller
                         ->ExcludeForTaxGroup()
                         ->get();
         $orderStatuses = $this->productUtil->orderStatuses();
+        if (!auth()->user()->can('purchase.complete')) {
+            unset($orderStatuses['received']);
+        }
         $business_locations = BusinessLocation::forDropdown($business_id, false, true);
         $bl_attributes = $business_locations['attributes'];
         $business_locations = $business_locations['locations'];
@@ -576,7 +581,9 @@ class PurchaseController extends Controller
         }
         
         $orderStatuses = $this->productUtil->orderStatuses();
-
+        if (!auth()->user()->can('purchase.complete')) {
+            if($purchase->status != "received"){ unset($orderStatuses['received']);};
+        }
         $business_locations = BusinessLocation::forDropdown($business_id);
 
         $default_purchase_status = null;
@@ -615,7 +622,18 @@ class PurchaseController extends Controller
                                         })
                                         ->pluck('ref_no', 'id');
         }
-
+// dd($taxes,
+// $purchase,
+// $orderStatuses,
+// $business_locations,
+// $business,
+// $currency_details,
+// $default_purchase_status,
+// $customer_groups,
+// $types,
+// $shortcuts,
+// $purchase_orders,
+// $common_settings);
         return view('purchase.edit')
             ->with(compact(
                 'taxes',
@@ -951,6 +969,7 @@ class PurchaseController extends Controller
                     $query->orWhere('sub_sku', 'like', '%' . $term .'%');
                 })
                 ->active()
+                ->where('is_approve', 1)
                 ->where('business_id', $business_id)
                 ->whereNull('variations.deleted_at')
                 ->select(

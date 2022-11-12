@@ -2070,17 +2070,26 @@ class TransactionUtil extends Util
     public function getInvoiceNumber($business_id, $status, $location_id, $invoice_scheme_id = null, $sale_type = null)
     {
         if ($status == 'final') {
-            if (empty($invoice_scheme_id)) {
-                $scheme = $this->getInvoiceScheme($business_id, $location_id);
-            } else {
-                $scheme = InvoiceScheme::where('business_id', $business_id)
-                                        ->find($invoice_scheme_id);
+            $businnes_location = BusinessLocation::find($location_id);
+
+            $scheme = InvoiceScheme::where('business_id', $business_id)->where('business_location_id', $location_id)->first();
+            if(!$scheme){
+                $input['business_id'] = $business_id;
+                $input['business_location_id'] = $location_id;
+                $input['name'] = 'Default';
+                $input['scheme_type'] = 'year';
+                $input['prefix'] = $this->getPrefix($business_id, $location_id);
+                $input['start_number'] = 1;
+                $input['invoice_count'] = 0;
+                $input['total_digits'] = 4;
+                $input['is_default'] = 1;
+                $scheme = InvoiceScheme::create($input);
             }
             
             if ($scheme->scheme_type == 'blank') {
                 $prefix = $scheme->prefix;
             } else {
-                $prefix = $scheme->prefix . date('Y') . config('constants.invoice_scheme_separator');
+                $prefix = $scheme->prefix .'-'. date('Y') . config('constants.invoice_scheme_separator');
             }
 
             //Count
@@ -2107,6 +2116,22 @@ class TransactionUtil extends Util
         else {
             return Str::random(5);
         }
+    }
+
+    private function getPrefix($business_id, $location_id)
+    {
+        $location = BusinessLocation::where('business_id', $business_id)
+                    ->where('id', $location_id)
+                    ->first();
+        $state = explode(' ', $location->state);
+        $city = explode(' ', $location->city);
+        $getState = (count($state) > 1) ? substr($state[0], 0, 1).substr($state[1], 0, 1) : substr($state[0], 0, 2);
+        $getCity = (count($city) > 1) ? substr($city[0], 0, 1).substr($city[1], 0, 1) : substr($city[0], 0, 2);
+        $randomletter = substr(str_shuffle("abcdefghijklmnopqrstuvwxyz"), 0, 2);
+
+        $prefix = strtoupper($getState.$getCity.$randomletter);
+
+        return $prefix;
     }
 
     private function getInvoiceScheme($business_id, $location_id)

@@ -145,8 +145,8 @@ class TaxRateController extends Controller
 
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
-            $tax_rate = TaxRate::where('business_id', $business_id)->orderBy('name','desc')->first();
-
+            $tax_rate = TaxRate::where('business_id', $business_id)->where('id', $id)->orderBy('name','desc')->first();
+// dd($tax_rate);
             return view('tax_rate.edit')
                 ->with(compact('tax_rate'));
         }

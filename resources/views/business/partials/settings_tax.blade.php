@@ -45,6 +45,18 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                {!! Form::label('code_1', __('business.cin_number') . ':') !!}
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-info"></i>
+                    </span>
+                    {!! Form::text('code_1', $business->code_1, ['class' => 'form-control']); !!}
+                </div>
+            </div>
+        </div>
         <div class="col-sm-8">
             <div class="form-group">
                 <div class="checkbox">
