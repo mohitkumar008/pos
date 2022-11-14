@@ -469,20 +469,20 @@ class ProductUtil extends Util
                 ->where('variations.id', $variation_id);
 
         //Add condition for check of quantity. (if stock is not enabled or qty_available > 0)
-        // if ($check_qty) {
-        //     $query->where(function ($query) use ($location_id) {
-        //         $query->where('p.enable_stock', '!=', 1)
-        //             ->orWhere('vld.qty_available', '>', 0);
-        //     });
-        // }
+        if ($check_qty) {
+            $query->where(function ($query) use ($location_id) {
+                $query->where('p.enable_stock', '!=', 1)
+                    ->orWhere('vld.qty_available', '>', 0);
+            });
+        }
         
-        // if (!empty($location_id) && $check_qty) {
-        //     //Check for enable stock, if enabled check for location id.
-        //     $query->where(function ($query) use ($location_id) {
-        //         $query->where('p.enable_stock', '!=', 1)
-        //                     ->orWhere('vld.location_id', $location_id);
-        //     });
-        // }
+        if (!empty($location_id) && $check_qty) {
+            //Check for enable stock, if enabled check for location id.
+            $query->where(function ($query) use ($location_id) {
+                $query->where('p.enable_stock', '!=', 1)
+                            ->orWhere('vld.location_id', $location_id);
+            });
+        }
         
         $product = $query->select(
             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 

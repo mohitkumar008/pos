@@ -1508,10 +1508,11 @@ class SellPosController extends Controller
         $business_details = $this->businessUtil->getDetails($business_id);
         //Check for weighing scale barcode
         $weighing_barcode = request()->get('weighing_scale_barcode');
+        $business_location = BusinessLocation::find($location_id);
 
         $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-        $check_qty = !empty($pos_settings['allow_overselling']) ? false : true;
+        $check_qty = ($business_location->allow_overselling == 1) ? false : true;
         $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id, $check_qty);
 
         if (!isset($product->quantity_ordered)) {
@@ -1586,7 +1587,7 @@ class SellPosController extends Controller
 
             $is_sales_order = request()->has('is_sales_order') && request()->input('is_sales_order') == 'true' ? true : false;
             $output['html_content'] =  view('sale_pos.product_row')
-                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order'))
+                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'business_location','sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order'))
                         ->render();
         }
 
@@ -1836,8 +1837,9 @@ class SellPosController extends Controller
             $business_id = $request->session()->get('user.business_id');
             $business = $request->session()->get('business');
             $pos_settings = empty($business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business->pos_settings, true);
-            $check_qty = !empty($pos_settings['allow_overselling']) ? false : true;
-            // dd($pos_settings);
+            $business_location = BusinessLocation::find($location_id);
+            $check_qty = ($business_location->allow_overselling == 1) ? false : true;
+            
             $products = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
                 ->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
                 ->leftjoin(
@@ -1931,8 +1933,11 @@ class SellPosController extends Controller
 
             $show_prices = !empty($pos_settings['show_pricing_on_product_sugesstion']);
 
-            return view('sale_pos.partials.product_list')
-                    ->with(compact('products', 'allowed_group_prices', 'show_prices'));
+            $result['data'] = view('sale_pos.partials.product_list')->with(compact('products', 'allowed_group_prices', 'show_prices'))->render();
+
+            $result['is_overselling_allowed'] = $business_location->allow_overselling;
+
+            return $result;
         }
     }
 

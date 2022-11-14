@@ -176,7 +176,7 @@ class BusinessLocationController extends Controller
                 'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_id', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id']);
 
             $input['business_id'] = $business_id;
-
+            $input['allow_overselling'] = !empty($request->input('allow_overselling')) ? 1 : 0;
             $input['default_payment_accounts'] = !empty($input['default_payment_accounts']) ? json_encode($input['default_payment_accounts']) : null;
 
             //Update reference count
@@ -280,7 +280,7 @@ class BusinessLocationController extends Controller
                 'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_id', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id']);
             
             $business_id = $request->session()->get('user.business_id');
-
+            $input['allow_overselling'] = !empty($request->input('allow_overselling')) ? 1 : 0;
             $input['default_payment_accounts'] = !empty($input['default_payment_accounts']) ? json_encode($input['default_payment_accounts']) : null;
 
             $input['featured_products'] = !empty($input['featured_products']) ? json_encode($input['featured_products']) : null;

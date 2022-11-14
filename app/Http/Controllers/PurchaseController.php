@@ -979,7 +979,8 @@ class PurchaseController extends Controller
                     // 'products.sku as sku',
                     'variations.id as variation_id',
                     'variations.name as variation',
-                    'variations.sub_sku as sub_sku'
+                    'variations.sub_sku as sub_sku',
+                    'variations.sell_price_inc_tax as mrp'
                 )
                 ->groupBy('variation_id');
 
@@ -1000,7 +1001,8 @@ class PurchaseController extends Controller
                 = [
                         'variation_id' => $product->variation_id,
                         'variation_name' => $product->variation,
-                        'sub_sku' => $product->sub_sku
+                        'sub_sku' => $product->sub_sku,
+                        'mrp' => $product->mrp
                         ];
             }
 
@@ -1013,7 +1015,7 @@ class PurchaseController extends Controller
                         $result[] = [ 'id' => $i,
                                     'text' => $value['name'] . ' - ' . $value['sku'],
                                     'variation_id' => 0,
-                                    'product_id' => $key
+                                    'product_id' => $key,
                                 ];
                     }
                     $name = $value['name'];
@@ -1024,7 +1026,7 @@ class PurchaseController extends Controller
                         }
                         $i++;
                         $result[] = [ 'id' => $i,
-                                            'text' => $text . ' - ' . $variation['sub_sku'],
+                                            'text' => $text . ' - ' . $variation['sub_sku']. ' - (₹ ' . $variation['mrp'].")",
                                             'product_id' => $key ,
                                             'variation_id' => $variation['variation_id'],
                                         ];

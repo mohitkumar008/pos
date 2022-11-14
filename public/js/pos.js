@@ -1658,9 +1658,14 @@ function get_product_suggestion_list(category_id, brand_id, location_id, url = n
             is_enabled_stock: is_enabled_stock,
             repair_model_id: repair_model_id
         },
-        dataType: 'html',
         success: function (result) {
-            $('div#product_list_body').append(result);
+            $('div#product_list_body').append(result.data);
+            if(result.is_overselling_allowed == 0){
+                $('input#is_overselling_allowed').remove();
+            }else if(result.is_overselling_allowed == 1){
+                var html = `<input type="hidden" id="is_overselling_allowed">`
+                $('.overselling_allowed').html(html);
+            }
             $('#suggestion_page_loader').fadeOut(700);
         },
     });

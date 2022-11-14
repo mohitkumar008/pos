@@ -5,9 +5,11 @@
 @section('content')
 <section class="content no-print">
 	<input type="hidden" id="amount_rounding_method" value="{{$pos_settings['amount_rounding_method'] ?? ''}}">
-	@if(!empty($pos_settings['allow_overselling']))
-		<input type="hidden" id="is_overselling_allowed">
-	@endif
+	<div class="overselling_allowed">
+		@if($default_location->allow_overselling == 1)
+			<input type="hidden" id="is_overselling_allowed">
+		@endif
+	</div>
 	@if(session('business.enable_rp') == 1)
         <input type="hidden" id="reward_point_enabled">
     @endif
@@ -96,7 +98,7 @@
     @endif
 @stop
 @section('javascript')
-	<script src="{{ asset('js/pos.js') }}"></script>
+	<script src="{{ asset('js/pos.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>

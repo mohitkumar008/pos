@@ -453,7 +453,6 @@
                         {!! Form::select('type', $product_types, $product->type, [
                             'class' => 'form-control select2',
                             'required',
-                            'disabled',
                             'data-action' => 'edit',
                             'data-product_id' => $product->id,
                         ]) !!}

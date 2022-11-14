@@ -6,7 +6,7 @@
     {!! Form::hidden('hidden_id', $location->id, ['id' => 'hidden_id']); !!}
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title">@lang( 'business.edit_business_location' )</h4>
+      <h4 class="modal-title">@lang( 'business.edit_business_location' )&nbsp;{{!empty($location->custom_field3) ? '('.Str::ucfirst($location->custom_field3).')' : ""}}</h4>
     </div>
 
     <div class="modal-body">
@@ -111,6 +111,7 @@
               'placeholder' => __('messages.please_select')]); !!}
           </div>
         </div>
+        
         <div class="clearfix"></div>
         @php
           $custom_labels = json_decode(session('business.custom_labels'), true);
@@ -133,20 +134,31 @@
                 'placeholder' => $location_custom_field2]); !!}
         </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3 hide">
         <div class="form-group">
             {!! Form::label('custom_field3', $location_custom_field3 . ':') !!}
-            {!! Form::text('custom_field3', $location->custom_field3, ['class' => 'form-control', 
+            {!! Form::text('custom_field3', $location->custom_field3, ['class' => 'form-control', 'readonly',
                 'placeholder' => $location_custom_field3]); !!}
         </div>
       </div>
-      <div class="col-sm-3">
+      <div class="col-sm-3 hide">
         <div class="form-group">
             {!! Form::label('custom_field4', $location_custom_field4 . ':') !!}
             {!! Form::text('custom_field4', $location->custom_field4, ['class' => 'form-control', 
                 'placeholder' => $location_custom_field4]); !!}
         </div>
       </div>
+      <div class="col-sm-12 text-center">
+        <div class="form-group">
+            <div class="checkbox">
+                <br>
+                <label>
+                    {!! Form::checkbox('allow_overselling', 1,  !empty($location->allow_overselling) ? true : false , ['class' => 'input-icheck']) !!} {{ __('lang_v1.allow_overselling') }}
+                </label>
+                @show_tooltip(__('lang_v1.allow_overselling_help'))
+            </div>
+        </div>
+    </div>
       <div class="clearfix"></div>
       <hr>
       <div class="col-sm-12">

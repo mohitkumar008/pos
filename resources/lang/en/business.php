@@ -108,4 +108,6 @@ return [
     'created_by' => 'Created By',
     'is_deactive' => 'Inactive',
     'cin_number' => 'CIN Number',
+    'warehouse' => 'Warehouse',
+    'mart' => 'Mart',
 ];
