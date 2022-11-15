@@ -84,6 +84,14 @@ class BusinessLocationController extends Controller
                     $locations->where('business_locations.is_active','!=', 1);
                 }
             }
+            if (!empty(request()->location_type)) {
+                if(request()->location_type == 'mart'){
+                    $locations->where('business_locations.custom_field3','=' ,'mart');
+                }
+                elseif(request()->location_type == 'warehouse'){
+                    $locations->where('business_locations.custom_field3','=', 'warehouse');
+                }
+            }
 
             return Datatables::of($locations)
                 ->addColumn(

@@ -1218,6 +1218,9 @@ $(document).ready(function() {
                 if ($('#business_running_status').length) {
                     d.status = $('#business_running_status').val();
                 }
+                if ($('#location_type').length) {
+                    d.location_type = $('#location_type').val();
+                }
 
                 d = __datatable_ajax_callback(d);
             },
@@ -1319,7 +1322,7 @@ $(document).ready(function() {
     });
     $(document).on(
         'change',
-        '#business_running_status',
+        '#business_running_status,#location_type',
         function () {
             business_locations.ajax.reload();
         }

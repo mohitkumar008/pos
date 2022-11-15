@@ -37,6 +37,14 @@ class ManageUserController extends Controller
         if (!auth()->user()->can('user.view') && !auth()->user()->can('user.create')) {
             abort(403, 'Unauthorized action.');
         }
+        $business_id = request()->session()->get('user.business_id');
+        $getRoles = DB::table('roles')->where('business_id', $business_id)->pluck('name','id');
+        $roles = [];
+        foreach($getRoles as $key => $value) {
+            $roles[$key] = str_replace('#'. $business_id, '', $value);
+        }
+        $business_locations = BusinessLocation::forDropdown($business_id);
+        $business_locations->prepend(__('report.all_locations'), 'all');
 
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
@@ -47,6 +55,19 @@ class ManageUserController extends Controller
                         ->where('is_cmmsn_agnt', 0)
                         ->select(['id', 'username',
                             DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email', 'allow_login']);
+
+            if (!empty(request()->role)) {
+                $role = Role::find(request()->role);
+                $users->role($role->name);
+            }
+            // $users->can('access_all_locations');
+            if (!empty(request()->location_id)) {
+                if(request()->location_id == 'all'){
+                    $users->permission('access_all_locations');
+                }else{
+                    $users->permission('location.'.request()->location_id);
+                }
+            }
 
             return Datatables::of($users)
                 ->editColumn('username', '{{$username}} @if(empty($allow_login)) <span class="label bg-gray">@lang("lang_v1.login_not_allowed")</span>@endif')
@@ -94,7 +115,7 @@ class ManageUserController extends Controller
                 ->make(true);
         }
 
-        return view('manage_user.index');
+        return view('manage_user.index')->with(compact('business_locations','roles'));
     }
 
     /**

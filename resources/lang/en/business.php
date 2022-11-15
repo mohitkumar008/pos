@@ -110,4 +110,5 @@ return [
     'cin_number' => 'CIN Number',
     'warehouse' => 'Warehouse',
     'mart' => 'Mart',
+    'location_type' => 'Location Type',
 ];
