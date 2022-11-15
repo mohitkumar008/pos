@@ -62,4 +62,5 @@ return [
     'add_hsn' => 'Add HSN',
     'add_barcode' => 'Add Barcode',
     'add_hsn_or_barcode' => 'Add HSN & Barcode',
+    'stock_history' => 'Stock History',
  ];

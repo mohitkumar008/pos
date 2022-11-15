@@ -96,6 +96,13 @@
                 @elseif(session('barcode_notification.msg'))
                 {{ session('barcode_notification.msg') }}
                 @endif
+                @if(session('barcode_notification.skuErrArray'))
+                <ul>
+                    @foreach (session('barcode_notification.skuErrArray') as $list)
+                        <li>{{$list}}</li>
+                    @endforeach
+                </ul>
+                @endif
             </div>
         </div>
     </div>

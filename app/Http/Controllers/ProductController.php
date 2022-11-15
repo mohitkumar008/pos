@@ -2205,6 +2205,30 @@ class ProductController extends Controller
             ->with(compact('product', 'business_locations'));
     }
 
+    public function stockHistory()
+    {
+        if (!auth()->user()->can('product.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $business_id = request()->session()->get('user.business_id');
+        if (request()->ajax()) {
+            $product = Product::where('business_id', $business_id)
+                        ->with(['variations', 'variations.product_variation'])
+                        ->findOrFail(request()->input('product_id'));
+            $stock_details = $this->productUtil->getVariationStockDetails($business_id, request()->input('variation_id'), request()->input('location_id'));
+            $stock_history = $this->productUtil->getVariationStockHistory($business_id, request()->input('variation_id'), request()->input('location_id'));
+            $variation_id = request()->input('variation_id');
+            // dd($stock_details,$stock_history);
+            return view('product.stock_history_details_ajax')
+                ->with(compact('stock_details', 'stock_history','product','variation_id'));
+        }
+        $business_locations = BusinessLocation::forDropdown($business_id, false, false, true, true);
+
+        return view('product.stock_history_ajax')
+            ->with(compact('business_locations'));
+    }
+
     public function updateLocationQuantity($id)
     {
         if (!auth()->user()->can('product.view')) {
@@ -2428,29 +2452,40 @@ class ProductController extends Controller
 
                 $is_valid = true;
                 $error_msg = '';
-
+                $skuErrArray = [];
                 foreach ($imported_data as $key => $value) {
                     $row_no = $key + 1;
                     $sku = $value[0];
                     //Check for product SKU, get product id, variation id.
+                    if (empty($sku)) {
+                        $error_msg = "PRODUCT SKU is required in row no. $row_no";
+                        $skuErrArray[] = $error_msg;
+                    }
                     if (!empty($sku)) {
                         $product_info = Product::where('business_id', $business_id)->where('sku', $sku)->first();
-
-                        if (!empty($product_info)) {
-                            $productIdArr[] = $product_info->id;
-                        } else {
-                            $is_valid = false;
+                        if (empty($product_info)) {
                             $error_msg = "Product with sku $sku not found in row no. $row_no";
-                            break;
+                            $skuErrArray[] = $error_msg;
                         }
-
-                    } else {
-                        $is_valid = false;
-                        $error_msg = "PRODUCT SKU is required in row no. $row_no";
-                        break;
                     }
                 }
-                // dd($productIdArr);
+                if (count($skuErrArray) == 0) {
+                    foreach ($imported_data as $key => $value) {
+                        $row_no = $key + 1;
+                        $sku = $value[0];
+                        //Check for product SKU, get product id, variation id.
+                        if (!empty($sku)) {
+                            $product_info = Product::where('business_id', $business_id)->where('sku', $sku)->first();
+                            if (!empty($product_info)) {
+                                $productIdArr[] = $product_info->id;
+                            }
+                        }
+                    }
+                }else{
+                    $error_msg = 'Error';
+                    throw new \Exception($error_msg);
+                }
+                
                 // Add new brarcodes to selected location
                 $this->productUtil->updateProductLocations($business_id, $productIdArr, $location_id, 'add');
             }
@@ -2470,6 +2505,7 @@ class ProductController extends Controller
 
             $output = ['success' => 0,
                 'msg' => "Message:" . $e->getMessage(),
+                'skuErrArray' => $skuErrArray,
             ];
             return redirect('products/add-hsn-or-barcode')->with('barcode_notification', $output);
         }

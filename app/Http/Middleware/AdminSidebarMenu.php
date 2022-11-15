@@ -189,6 +189,13 @@ class AdminSidebarMenu
                                 ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'add-hsn-or-barcode']
                             );
                         }
+                        if (auth()->user()->can('product.stock_history')) {
+                            $sub->url(
+                                action('ProductController@stockHistory'),
+                                __('product.stock_history'),
+                                ['icon' => 'fa fas fa-gem', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'stock-history-details']
+                            );
+                        }
 
                         $sub->url(
                             action('WarrantyController@index'),

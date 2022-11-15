@@ -78,4 +78,5 @@ return [
     'net_profit' => 'Net Profit',
     'total_stock_adjustment' => 'Total Stock Adjustment',
     'total_stock_recovered' => 'Total Stock Recovered',
+    'search_product' => 'Search Product for Stock History', 
 ];

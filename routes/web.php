@@ -82,6 +82,7 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
     
         Route::resource('variation-templates', 'VariationTemplateController');
     
+        Route::get('/products/stock-history-details', 'ProductController@stockHistory');
         Route::get('/products/stock-history/{id}', 'ProductController@productStockHistory');
         Route::post('/products/update-location-quantity/{id}', 'ProductController@updateLocationQuantity');
         Route::get('/delete-media/{media_id}', 'ProductController@deleteMedia');
