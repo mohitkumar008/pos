@@ -2963,10 +2963,10 @@ class SellPosController extends Controller
                 if($result->success){
                     $wallet_options = [];
                     $wallet_options['custom_pay_1'] = $result->product_wallet > 0 ? $payment_types['custom_pay_1'] : "";
-                    $wallet_options['custom_pay_2'] = $result->product_wallet > 0 ? $payment_types['custom_pay_2'] : "";
-                    $wallet_options['custom_pay_3'] = $result->product_wallet > 0 ? $payment_types['custom_pay_3'] : "";
-                    $wallet_options['custom_pay_4'] = $result->product_wallet > 0 ? $payment_types['custom_pay_4'] : "";
-                    // dd($result);
+                    $wallet_options['custom_pay_2'] = $result->purchase_wallet > 0 ? $payment_types['custom_pay_2'] : "";
+                    $wallet_options['custom_pay_3'] = $result->redeem_wallet > 0 ? $payment_types['custom_pay_3'] : "";
+                    $wallet_options['custom_pay_4'] = $result->armada_wallet > 0 ? $payment_types['custom_pay_4'] : "";
+                    $wallet_options = array_filter($wallet_options);
                     return [
                         'success'=>true,
                         'product_wallet'=>$result->product_wallet,
