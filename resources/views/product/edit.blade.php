@@ -135,7 +135,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-4">
+                {{-- <div class="col-sm-4">
                     <div class="form-group">
                         {!! Form::label('product_locations', __('business.business_locations') . ':') !!} @show_tooltip(__('lang_v1.product_location_help'))
                         {!! Form::select('product_locations[]', $business_locations, $product->product_locations->pluck('id'), [
@@ -144,7 +144,7 @@
                             'id' => 'product_locations',
                         ]) !!}
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="clearfix"></div>
 

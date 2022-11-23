@@ -63,8 +63,7 @@ class StockTransferController extends Controller
         $statuses = $this->stockTransferStatuses();
         $business_id = request()->session()->get('user.business_id');
 
-        
-        $business_locations = BusinessLocation::forDropdown($business_id, false);
+        $business_locations = BusinessLocation::forDropdown($business_id, false, false, true, false);
         $business_locations_2 = BusinessLocation::forDropdown($business_id, false, false, true, false);
 
         if (request()->ajax()) {
@@ -85,6 +84,7 @@ class StockTransferController extends Controller
                     );
                     $query->where('transactions.business_id', $business_id);
                     $query->where('transactions.type', 'sell_transfer');
+                    $query->orWhere('transactions.type', 'purchase_transfer');
 
                     if($permitted_locations != 'all'){
                         $query->whereIn('transactions.location_id', $permitted_locations);
@@ -129,7 +129,8 @@ class StockTransferController extends Controller
                         'transactions.shipping_charges',
                         'transactions.additional_notes',
                         'transactions.id as DT_RowId',
-                        'transactions.status'
+                        'transactions.status',
+                        'transactions.created_by'
                     );
             
             return Datatables::of($stock_transfers)
@@ -152,7 +153,7 @@ class StockTransferController extends Controller
                         ->addDays($edit_days);
                     $today = today();
 
-                    if ($date->gte($today)) {
+                    if (($date->gte($today) && auth()->user()->id == $row->created_by) || auth()->user()->getRoleNameAttribute() == 'Admin') {
                         $html .= '&nbsp;
                         <button type="button" data-href="' . action("StockTransferController@destroy", [$row->id]) . '" class="btn btn-danger btn-xs delete_stock_transfer"><i class="fa fa-trash" aria-hidden="true"></i> ' . __("messages.delete") . '</button>';
                     }

@@ -773,9 +773,9 @@ class ProductController extends Controller
             $product->touch();
 
             //Add product locations
-            $product_locations = !empty($request->input('product_locations')) ?
-            $request->input('product_locations') : [];
-            $product->product_locations()->sync($product_locations);
+            // $product_locations = !empty($request->input('product_locations')) ?
+            // $request->input('product_locations') : [];
+            // $product->product_locations()->sync($product_locations);
 
             if ($product->type == 'single') {
                 $single_data = $request->only(['single_variation_id', 'single_dpp', 'single_dpp_inc_tax', 'single_dsp_inc_tax', 'profit_percent', 'single_dsp']);
@@ -2375,6 +2375,8 @@ class ProductController extends Controller
                         $row_no = $key + 1;
                         $sku = $value[0];
                         $hsn = $value[1];
+                        $product_info = Product::where('sku', $sku)->first();
+                        $tax_info = TaxRate::where('name', $hsn)->first();
                         $tax_id = $tax_info->id;
                         $product_info->tax = $tax_id;
                         $product_info->save();
