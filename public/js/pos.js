@@ -1849,6 +1849,26 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
     }
 }
 
+$(document).on('change', '.all_discount', function (){
+    var current_element = $(this)
+    var product_row = current_element.parents('tr.product_row')
+    $.ajax({
+        method: 'post',
+        url: '/sells/pos/get_discount_details',
+        data: {
+            discount: current_element.val()
+        },
+        success: function (result) {
+            result = JSON.parse(result);
+            product_row.find('.row_discount_type').val(result.discount_type).trigger('change')
+            product_row.find('.row_discount_amount').val(result.discount_amount).trigger('change')
+            // product_row.find('.default_row_discount_type').val(result.discount_type)
+            // product_row.find('.default_row_discount_amount').val(result.discount_amount)
+            pos_each_row(product_row);
+        }
+    });
+})
+
 //Update values for each row
 function pos_each_row(row_obj) {
     var unit_price = __read_number(row_obj.find('input.pos_unit_price'));

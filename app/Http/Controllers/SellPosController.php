@@ -26,42 +26,43 @@
  */
 namespace App\Http\Controllers;
 
-use App\Account;
-use App\Brands;
-use App\Business;
-use App\BusinessLocation;
-use App\Category;
-use App\Contact;
-use App\CustomerGroup;
-use App\Media;
-use App\Product;
-use App\SellingPriceGroup;
-use App\TaxRate;
-use App\Transaction;
-use App\TransactionSellLine;
-use App\TypesOfService;
 use App\User;
-use App\Utils\BusinessUtil;
-use App\Utils\CashRegisterUtil;
-use App\Utils\ContactUtil;
-use App\Utils\ModuleUtil;
-use App\Utils\NotificationUtil;
-use App\Utils\ProductUtil;
-use App\Utils\TransactionUtil;
-use App\Variation;
+use App\Media;
+use App\Brands;
+use App\Account;
+use App\Contact;
+use App\Product;
+use App\TaxRate;
+use App\Business;
+use App\Category;
+use App\Discount;
 use App\Warranty;
-use App\InvoiceLayout;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Yajra\DataTables\Facades\DataTables;
-use App\InvoiceScheme;
-use App\SalesOrderController;
-use Razorpay\Api\Api;
-use App\TransactionPayment;
+use App\Variation;
 use Stripe\Charge;
 use Stripe\Stripe;
+use App\Transaction;
+use Razorpay\Api\Api;
+use App\CustomerGroup;
+use App\InvoiceLayout;
+use App\InvoiceScheme;
+use App\TypesOfService;
+use App\BusinessLocation;
+use App\Utils\ModuleUtil;
+use App\SellingPriceGroup;
+use App\Utils\ContactUtil;
+use App\Utils\ProductUtil;
+use App\TransactionPayment;
+use App\Utils\BusinessUtil;
+use Illuminate\Support\Str;
+use App\TransactionSellLine;
+use Illuminate\Http\Request;
+use App\SalesOrderController;
+use App\Utils\TransactionUtil;
+use App\Utils\CashRegisterUtil;
+use App\Utils\NotificationUtil;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class SellPosController extends Controller
 {
@@ -1567,16 +1568,17 @@ class SellPosController extends Controller
             $waiters_enabled = true;
             $waiters = $this->productUtil->serviceStaffDropdown($business_id, $location_id);
         }
-
+        
         if (request()->get('type') == 'sell-return') {
             $output['html_content'] =  view('sell_return.partials.product_row')
-                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'sub_units'))
-                        ->render();
+            ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'sub_units'))
+            ->render();
         } else {
             $is_cg = !empty($cg->id) ? true : false;
             
             $discount = $this->productUtil->getProductDiscount($product, $business_id, $location_id, $is_cg, $price_group, $variation_id);
-            
+            $all_discount = $this->productUtil->getProductAllDiscount($product, $business_id, $location_id, $is_cg, $price_group, $variation_id);
+            // dd($all_discount);
             if ($is_direct_sell) {
                 $edit_discount = auth()->user()->can('edit_product_discount_from_sale_screen');
                 $edit_price = auth()->user()->can('edit_product_price_from_sale_screen');
@@ -1587,11 +1589,17 @@ class SellPosController extends Controller
 
             $is_sales_order = request()->has('is_sales_order') && request()->input('is_sales_order') == 'true' ? true : false;
             $output['html_content'] =  view('sale_pos.product_row')
-                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'business_location','sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order'))
+                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'business_location','sub_units', 'all_discount','discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order'))
                         ->render();
         }
 
         return $output;
+    }
+
+    public function getdiscountDetails(Request $request)
+    {
+        $discount = Discount::find($request->discount);
+        return json_encode($discount);
     }
 
     /**

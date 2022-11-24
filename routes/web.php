@@ -148,6 +148,7 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         Route::get('/sells/pos/get-recent-transactions', 'SellPosController@getRecentTransactions');
         Route::get('/sells/pos/get-product-suggestion', 'SellPosController@getProductSuggestion');
         Route::get('/sells/pos/get-featured-products/{location_id}', 'SellPosController@getFeaturedProducts');
+        Route::post('/sells/pos/get_discount_details', 'SellPosController@getdiscountDetails');
         Route::post('/get_all_wallet_ammount/{customer_id}', 'SellPosController@get_all_wallet_ammount');
         Route::resource('pos', 'SellPosController');
         

@@ -626,6 +626,7 @@ return [
     'discount_priority_help' => 'Discount with higher priority will have higher weightage, however priority will not be considered for exact matches',
     'inactive' => 'Inactive',
     'applied_discount_text' => 'Discount: <i>:discount_name</i> applied (Ends at: <i>:ends_at</i>)',
+    'applied_discount' => 'Applied Discount',
     'discount.access' => 'Add/Edit/Delete Discount',
     'product_stock_details' => 'Product Stock Details',
     'search' => 'Search',

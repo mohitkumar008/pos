@@ -28,9 +28,15 @@
 						{!! Form::hidden("products[$row_count][default_line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number default_row_discount_amount']); !!}
 						{!! Form::hidden("products[$row_count][default_line_discount_type]", $discount_type, ['class' => 'form-control input_number default_row_discount_type']); !!}
 				</div>
-				@if(!empty($discount))
+				{{-- @if(!empty($discount))
 					<div class="form-group col-xs-12">
 						<p class="help-block">{!! __('lang_v1.applied_discount_text', ['discount_name' => $discount->name, 'starts_at' => $discount->formated_starts_at, 'ends_at' => $discount->formated_ends_at]) !!}</p>
+					</div>
+				@endif --}}
+				@if(!$all_discount->isEmpty())
+					<div class="form-group col-xs-12">
+						<label>@lang('lang_v1.applied_discount')</label>
+						{!! Form::select("products[$row_count][all_discount]", $all_discount, $discount->id, ['placeholder' => 'Select', 'class' => 'form-control all_discount'] ); !!}
 					</div>
 				@endif
 				<div class="form-group col-xs-12 {{$hide_tax}}">
