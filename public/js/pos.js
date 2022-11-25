@@ -893,6 +893,7 @@ $(document).ready(function () {
         var customer_id = $('select#customer_id').val();
         var location_id = $('input#location_id').val();
         var first_payment_type = $('#payment_rows_div').find('.payment_types_dropdown').val()
+        var selected_payment_option = $('select#wallet_option_dropdown').val();
         var get_wallet_options = false;
         if($('#payment_rows_div').find('div.payment_box').length == 0){
             get_wallet_options = true;
@@ -900,7 +901,7 @@ $(document).ready(function () {
         $.ajax({
             method: 'POST',
             url: '/sells/pos/get_payment_row',
-            data: { row_index: row_index, location_id: location_id, customer_id: customer_id, first_payment_type: first_payment_type, get_wallet_options: get_wallet_options },
+            data: { row_index: row_index, location_id: location_id, customer_id: customer_id, first_payment_type: first_payment_type, get_wallet_options: get_wallet_options, selected_payment_option:selected_payment_option },
             dataType: 'html',
             success: function (result) {
                 if (result) {

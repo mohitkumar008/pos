@@ -9,7 +9,7 @@
 			<div style="overflow: hidden !important;display: flex; flex-wrap: wrap;align-content: center;width: {{$barcode_details->width * 1}}in; height:50mm;;justify-content: center;">
 				
 
-				<div>
+				<div style="width: inherit;">
 
 					{{-- Business Name --}}
 					@if(!empty($print['business_name']))

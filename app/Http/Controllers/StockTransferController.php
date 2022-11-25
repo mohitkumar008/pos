@@ -83,8 +83,7 @@ class StockTransferController extends Controller
                                 'l2.id'
                     );
                     $query->where('transactions.business_id', $business_id);
-                    $query->where('transactions.type', 'sell_transfer');
-                    $query->orWhere('transactions.type', 'purchase_transfer');
+                    $query->whereIn('transactions.type', ['sell_transfer', 'purchase_transfer']);
 
                     if($permitted_locations != 'all'){
                         $query->whereIn('transactions.location_id', $permitted_locations);
