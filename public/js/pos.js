@@ -774,7 +774,7 @@ $(document).ready(function () {
     $('#modal_payment').on('hidden.bs.modal', function () {
         reset_discount();
         $('.payment_box').remove();
-        $('select#wallet_option_dropdown').val('').trigger('change');
+        $('select#wallet_option_dropdown').val('');
         $('.remove_payment_row').closest('.payment_row').parent().remove();
         $('button#add-payment-row').trigger('click');
         calculate_balance_due();
@@ -1171,6 +1171,24 @@ $(document).ready(function () {
     $(document).on('click', '.add_new_customer', function () {
         $('#customer_id').select2('close');
         var name = $(this).data('name');
+        if(jQuery.type( name ) === "number"){
+            $('.contact_modal').find('input#mobile').val(name);
+        }
+        else if(jQuery.type( name) === "string"){
+            var name = name.split(" ")
+            if(name.length == 1){
+                $('.contact_modal').find('input#first_name').val(name[0]);
+            }
+            if(name.length == 2){
+                $('.contact_modal').find('input#first_name').val(name[0]);
+                $('.contact_modal').find('input#last_name').val(name[1]);
+            }
+            if(name.length == 3){
+                $('.contact_modal').find('input#first_name').val(name[0]);
+                $('.contact_modal').find('input#middle_name').val(name[1]);
+                $('.contact_modal').find('input#last_name').val(name[2]);
+            }
+        }
         $('.contact_modal')
             .find('input#name')
             .val(name);
