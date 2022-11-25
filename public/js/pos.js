@@ -1171,10 +1171,10 @@ $(document).ready(function () {
     $(document).on('click', '.add_new_customer', function () {
         $('#customer_id').select2('close');
         var name = $(this).data('name');
-        if(jQuery.type( name ) === "number"){
+        if($.type( name ) === "number"){
             $('.contact_modal').find('input#mobile').val(name);
         }
-        else if(jQuery.type( name) === "string"){
+        else if($.type( name) === "string"){
             var name = name.split(" ")
             if(name.length == 1){
                 $('.contact_modal').find('input#first_name').val(name[0]);
