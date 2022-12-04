@@ -100,6 +100,7 @@
 				                  - {{@format_date($sell_lines->lot_details->exp_date)}}
 				                @endif
 				               @endif
+							   ({{$sell_lines->variations->sub_sku}})
 				            </td>
 				            <td>{{ @format_quantity($sell_lines->quantity) }} {{$sell_lines->product->unit->short_name ?? ""}}</td>
 				            <td>

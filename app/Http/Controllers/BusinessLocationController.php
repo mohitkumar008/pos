@@ -387,4 +387,25 @@ class BusinessLocationController extends Controller
 
         return $output;
     }
+
+    public function checkPincodeApi(Request $request, $pincode)
+    {
+        // dd($pincode);
+        try {
+            $business_location = BusinessLocation::where('service_area','like','%'.$pincode.'%')->get();
+
+            $output = ['success' => true,
+                            'msg' => $msg,
+                            'business_location' => $business_location
+                        ];
+        } catch (\Exception $e) {
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+            $output = ['success' => false,
+                            'msg' => __("messages.something_went_wrong")
+                        ];
+        }
+
+        return $output;
+    }
 }

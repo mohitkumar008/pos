@@ -85,9 +85,9 @@ class StockTransferController extends Controller
                     $query->where('transactions.business_id', $business_id);
                     $query->whereIn('transactions.type', ['sell_transfer', 'purchase_transfer']);
 
-                    if($permitted_locations != 'all'){
-                        $query->whereIn('transactions.location_id', $permitted_locations);
-                    }
+                    // if($permitted_locations != 'all'){
+                    //     $query->whereIn('transactions.location_id', $permitted_locations);
+                    // }
 
                     if (request()->has('location_from')) {
                         $location_from = request()->get('location_from');
@@ -801,7 +801,7 @@ class StockTransferController extends Controller
                 $lot_n_exp_enabled = true;
             }
 
-
+// dd($sell_transfer);
             $output = ['success' => 1, 'receipt' => [], 'print_title' => $sell_transfer->ref_no];
             $output['receipt']['html_content'] = view('stock_transfer.print', compact('sell_transfer', 'location_details', 'lot_n_exp_enabled','output_taxes','print_format'))->render();
         } catch (\Exception $e) {

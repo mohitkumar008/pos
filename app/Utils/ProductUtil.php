@@ -469,13 +469,12 @@ class ProductUtil extends Util
                 ->where('variations.id', $variation_id);
 
         //Add condition for check of quantity. (if stock is not enabled or qty_available > 0)
-        if ($check_qty) {
-            $query->where(function ($query) use ($location_id) {
-                $query->where('p.enable_stock', '!=', 1)
-                    ->orWhere('vld.qty_available', '>', 0);
-            });
-        }
-        
+        // if ($check_qty) {
+        //     $query->where(function ($query) use ($location_id) {
+        //         $query->where('p.enable_stock', '!=', 1)
+        //             ->orWhere('vld.qty_available', '>', 0);
+        //     });
+        // }
         if (!empty($location_id) && $check_qty) {
             //Check for enable stock, if enabled check for location id.
             $query->where(function ($query) use ($location_id) {
@@ -483,6 +482,8 @@ class ProductUtil extends Util
                             ->orWhere('vld.location_id', $location_id);
             });
         }
+        // dd($query->get());
+                
         
         $product = $query->select(
             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
@@ -515,7 +516,8 @@ class ProductUtil extends Util
                         variation_id=variations.id ORDER BY id DESC LIMIT 1) as last_purchased_price")
         )
         ->firstOrFail();
-
+//         ->toSql();
+// dd($product);
         if ($product->product_type == 'combo') {
             if ($check_qty) {
                 $product->qty_available = $this->calculateComboQuantity($location_id, $product->combo_variations);

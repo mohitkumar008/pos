@@ -130,13 +130,14 @@ elseif($print_format == 'tax-invoice'){
           <th>@lang('sale.unit')</th>
           <th>@lang('sale.unit_price')</th>
           @if ($print_format == 'tax-invoice')
-            <th>@lang('sale.discount')</th>
+            <th>rate</th>
             <th>@lang('GST')</th>
           @endif
           <th>@lang('sale.subtotal')</th>
         </tr>
         @php 
           $total = 0.00;
+          $total_gst = 0.00;
         @endphp
         @foreach($sell_transfer->sell_lines as $sell_lines)
           <tr>
@@ -165,7 +166,7 @@ elseif($print_format == 'tax-invoice'){
             <td>{{ $sell_lines->product->unit->short_name ?? ""}}</td>
             <td>{{ $sell_lines->unit_price_inc_tax}}</td>
             @if ($print_format == 'tax-invoice')
-              <td>{{ $sell_lines->line_discount_amount}}</td>
+              <td>{{ $sell_lines->product->product_tax ? $sell_lines->product->product_tax->amount : ""}}</td>
               <td>{{ $sell_lines->item_tax}}</td>
             @endif
             <td>
@@ -174,6 +175,7 @@ elseif($print_format == 'tax-invoice'){
           </tr>
           @php 
             $total += ($sell_lines->unit_price_inc_tax * $sell_lines->quantity);
+            $total_gst += $sell_lines->item_tax;
           @endphp
         @endforeach
       </table>
@@ -191,6 +193,11 @@ elseif($print_format == 'tax-invoice'){
           <td></td>
           <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $total }}</span></td>
         </tr>
+        <tr>
+          <th>Total GST: </th>
+          <td></td>
+          <td><span class="display_currency pull-right" data-currency_symbol="true">{{ $total_gst }}</span></td>
+        </tr>
         @if( !empty( $sell_transfer->shipping_charges ) )
           <tr>
             <th>@lang('purchase.additional_shipping_charges'):</th>
@@ -201,7 +208,7 @@ elseif($print_format == 'tax-invoice'){
         <tr>
           <th>@lang('purchase.purchase_total'):</th>
           <td></td>
-          <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $sell_transfer->final_total }}</span></td>
+          <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $sell_transfer->final_total + $total_gst}}</span></td>
         </tr>
       </table>
     </div>

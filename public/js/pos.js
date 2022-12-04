@@ -420,6 +420,21 @@ $(document).ready(function () {
         qty_element.trigger('change');
     });
 
+    $('table#pos_table tbody').on('keyup', 'input.row_discount_amount', function () {
+        var tr = $(this).parents('tr');
+        var row_discount_type = tr.find('select.row_discount_type').val();
+        var pos_unit_price_inc_tax = tr.find('input.pos_unit_price_inc_tax').val()
+        var max_discount_amount = pos_unit_price_inc_tax*70/100;
+        if(row_discount_type == 'fixed' && $(this).val() > max_discount_amount){
+            toastr.warning('Fixed discount should be minimum '+ max_discount_amount);
+            $(this).val(0).trigger('change');
+        }
+        else if(row_discount_type == 'percentage' && $(this).val() > 70){
+            toastr.warning('Fixed discount should be minimum 70');
+            $(this).val(0).trigger('change');
+        } 
+    });
+
     //Change in row discount type or discount amount
     $('table#pos_table tbody').on(
         'change',
