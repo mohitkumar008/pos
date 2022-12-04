@@ -130,7 +130,7 @@ elseif($print_format == 'tax-invoice'){
           <th>@lang('sale.unit')</th>
           <th>@lang('sale.unit_price')</th>
           @if ($print_format == 'tax-invoice')
-            <th>rate</th>
+            <th>Tax Rate(%)</th>
             <th>@lang('GST')</th>
           @endif
           <th>@lang('sale.subtotal')</th>
@@ -167,15 +167,15 @@ elseif($print_format == 'tax-invoice'){
             <td>{{ $sell_lines->unit_price_inc_tax}}</td>
             @if ($print_format == 'tax-invoice')
               <td>{{ $sell_lines->product->product_tax ? $sell_lines->product->product_tax->amount : ""}}</td>
-              <td>{{ $sell_lines->item_tax}}</td>
+              <td>{{ $sell_lines->item_tax * $sell_lines->quantity}}</td>
             @endif
             <td>
-              <span class="display_currency" data-currency_symbol="true">{{ $sell_lines->unit_price_inc_tax * $sell_lines->quantity }}</span>
+              <span class="display_currency" data-currency_symbol="true">{{ ($sell_lines->unit_price_inc_tax + $sell_lines->item_tax) * $sell_lines->quantity }}</span>
             </td>
           </tr>
           @php 
             $total += ($sell_lines->unit_price_inc_tax * $sell_lines->quantity);
-            $total_gst += $sell_lines->item_tax;
+            $total_gst += $sell_lines->item_tax * $sell_lines->quantity;
           @endphp
         @endforeach
       </table>
@@ -208,7 +208,7 @@ elseif($print_format == 'tax-invoice'){
         <tr>
           <th>@lang('purchase.purchase_total'):</th>
           <td></td>
-          <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $sell_transfer->final_total + $total_gst}}</span></td>
+          <td><span class="display_currency pull-right" data-currency_symbol="true" >{{ $sell_transfer->final_total + $total_gst }}</span></td>
         </tr>
       </table>
     </div>

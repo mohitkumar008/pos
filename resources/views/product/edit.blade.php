@@ -7,9 +7,9 @@
     <section class="content-header">
         <h1>@lang('product.edit_product')</h1>
         <!-- <ol class="breadcrumb">
-            <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
-            <li class="active">Here</li>
-        </ol> -->
+                <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+                <li class="active">Here</li>
+            </ol> -->
     </section>
 
     <!-- Main content -->
@@ -42,7 +42,7 @@
                         {!! Form::text('sku', $product->sku, [
                             'class' => 'form-control',
                             'placeholder' => __('product.sku'),
-                            'required'
+                            'required',
                         ]) !!}
                     </div>
                 </div>
@@ -99,7 +99,8 @@
                         <div class="input-group">
                             {!! Form::select('brand_id', $brands, $product->brand_id, [
                                 'placeholder' => __('messages.please_select'),
-                                'class' => 'form-control select2','required'
+                                'class' => 'form-control select2',
+                                'required',
                             ]) !!}
                             <span class="input-group-btn">
                                 <button type="button" @if (!auth()->user()->can('brand.create')) disabled @endif
@@ -120,7 +121,8 @@
                         {!! Form::label('category_id', __('product.category') . ':') !!}
                         {!! Form::select('category_id', $categories, $product->category_id, [
                             'placeholder' => __('messages.please_select'),
-                            'class' => 'form-control select2','required'
+                            'class' => 'form-control select2',
+                            'required',
                         ]) !!}
                     </div>
                 </div>
@@ -293,17 +295,18 @@
                         </label> @show_tooltip(__('lang_v1.tooltip_not_for_selling'))
                     </div>
                 </div>
-                @if (auth()->user()->can('product.approve'))
-                  <div class="col-sm-4">
-                      <div class="form-group">
-                          <br>
-                          <label>
-                              {!! Form::checkbox('is_approve', 1, $product->is_approve, ['class' => 'input-icheck']) !!} <strong>@lang('messages.approve')</strong>
-                          </label>
-                      </div>
-                  </div>
-                @endif
 
+
+                <div class="col-sm-4 @if (!auth()->user()->can('product.approve')) hide @endif">
+                    <div class="form-group">
+                        <br>
+                        <label>
+                            {!! Form::checkbox('is_approve', 1, $product->is_approve, ['class' => 'input-icheck']) !!} <strong>@lang('messages.approve')</strong>
+                        </label>
+                    </div>
+                </div>
+
+                
                 <div class="clearfix"></div>
 
                 <!-- Rack, Row & position number -->

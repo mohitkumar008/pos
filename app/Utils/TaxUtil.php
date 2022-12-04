@@ -17,12 +17,17 @@ class TaxUtil extends Util
      */
     public function updateGroupTaxAmount($group_tax_id)
     {
-        $amount = 0;
+        
         $tax_rate = TaxRate::where('id', $group_tax_id)->with(['sub_taxes'])->first();
-        foreach ($tax_rate->sub_taxes as $sub_tax) {
-            $amount += $sub_tax->amount;
+        if($tax_rate){
+            $amount = 0;
+            foreach ($tax_rate->sub_taxes->where('for_tax_group',1) as $sub_tax) {
+                $amount += $sub_tax->amount;
+            }
+            $tax_rate->amount = $amount;
+            $tax_rate->save();
         }
-        $tax_rate->amount = $amount;
-        $tax_rate->save();
+        
+        
     }
 }

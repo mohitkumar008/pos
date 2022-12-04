@@ -28,6 +28,12 @@
                         {!! Form::select('subject_type', $transaction_types, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'subject_type', 'placeholder' => __('lang_v1.all')]); !!}
                     </div>
                 </div>
+                <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('location_id', __('purchase.business_location').':') !!}
+                    {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'location_id', 'placeholder' => __('messages.please_select')]); !!}
+                </div>
+            </div>
 
                 <div class="col-md-3">
                     <div class="form-group">
@@ -98,6 +104,11 @@
 
                     d.user_id = $('#al_users_filter').val();
                     d.subject_type = $('#subject_type').val();
+                    
+                    if ($('#location_id').val()) {
+                        d.location_name = $('#location_id option:selected').text();
+                    }
+                    
                 }
             },
             columns: [
@@ -105,11 +116,11 @@
                 { data: 'subject_type', "orderable": false, "searchable": false},
                 { data: 'description', name: 'description'},
                 { data: 'created_by', name: 'created_by'},
-                { data: 'note', name: 'note'}
+                { data: 'note', name: 'properties',"targets":4,"searchable":true}
             ]
         });  
 
-        $(document).on('change', '#al_users_filter, #subject_type', function(){
+        $(document).on('change', '#al_users_filter, #subject_type, #location_id', function(){
             activity_log_table.ajax.reload();
         })
     });

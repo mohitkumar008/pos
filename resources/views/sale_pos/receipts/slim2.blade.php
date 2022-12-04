@@ -334,21 +334,24 @@
             <table style="margin-top: 25px !important" class="border-bottom width-100 table-f-12 mb-10">
                 <thead class="border-bottom-dotted">
                     <tr>
-                        <th class="serial_number">#</th>
-                        <th class="description" width="30%">
+                        <th class="">#</th>
+                        <th class="" width="30%">
                         	{{$receipt_details->table_product_label}}
                         </th>
-                        <th class="text-left quantity">
+                        <th class="text-left ">
                         	{{$receipt_details->table_qty_label}}
                         </th>
                         @if(empty($receipt_details->hide_price))
-                        <th class="unit_price text-center" >
+                        <th class=" text-center" >
+                        	MRP
+                        </th>
+                        <th class=" text-center" >
                         	{{$receipt_details->table_unit_price_label}}
                         </th>
                         @if(!empty($receipt_details->item_discount_label))
 							<th class="text-left" width="10%">{{$receipt_details->item_discount_label}}</th>
 						@endif
-                        <th class="price text-right">{{$receipt_details->table_subtotal_label}}</th>
+                        <th class=" text-right">{{$receipt_details->table_subtotal_label}}</th>
                         @endif
                     </tr>
                 </thead>
@@ -395,6 +398,7 @@
 	                        </td>
 	                        <td class="quantity text-right">{{$line['quantity']}} </td>
 	                        @if(empty($receipt_details->hide_price))
+	                        <td class="unit_price text-center">{{$line['sell_price_inc_tax']}}</td>
 	                        <td class="unit_price text-center">{{$line['unit_price_inc_tax']}}</td>
 	                        @if(!empty($receipt_details->item_discount_label))
 								<td class="text-right">
