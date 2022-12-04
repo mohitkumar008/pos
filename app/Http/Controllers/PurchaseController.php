@@ -1,5 +1,5 @@
 <?php
-//fghdf
+
 namespace App\Http\Controllers;
 
 use App\AccountTransaction;
@@ -214,6 +214,7 @@ class PurchaseController extends Controller
         if (!auth()->user()->can('purchase.complete')) {
             unset($orderStatuses['received']);
         }
+
         return view('purchase.index')
             ->with(compact('business_locations', 'suppliers', 'orderStatuses'));
     }
@@ -395,11 +396,9 @@ class PurchaseController extends Controller
 
             $transaction = Transaction::create($transaction_data);
 
-            
             $purchase_lines = [];
             $purchases = $request->input('purchases');
             
-            // dd($transaction, $purchases, $currency_details, $enable_product_editing);
             $this->productUtil->createOrUpdatePurchaseLines($transaction, $purchases, $currency_details, $enable_product_editing);
 
             //Add Purchase payments
@@ -415,6 +414,8 @@ class PurchaseController extends Controller
             //Adjust stock over selling if found
             $this->productUtil->adjustStockOverSelling($transaction);
 
+            $this->transactionUtil->activityLog($transaction, 'added');
+            
             // Add product to location
             $location_id[] = $request->input('location_id');
             $product_ids = [];
@@ -423,8 +424,6 @@ class PurchaseController extends Controller
             }
             $this->productUtil->updateProductLocations($business_id, $product_ids, $location_id, 'add');
 
-            $this->transactionUtil->activityLog($transaction, 'added');
-            
             DB::commit();
             
             $output = ['success' => 1,
@@ -537,12 +536,12 @@ class PurchaseController extends Controller
         }
 
         //Check if the transaction can be edited or not.
-        $edit_days = request()->session()->get('business.transaction_edit_days');
-        if (!$this->transactionUtil->canBeEdited($id, $edit_days)) {
-            return back()
-                ->with('status', ['success' => 0,
-                    'msg' => __('messages.transaction_edit_not_allowed', ['days' => $edit_days])]);
-        }
+        // $edit_days = request()->session()->get('business.transaction_edit_days');
+        // if (!$this->transactionUtil->canBeEdited($id, $edit_days)) {
+        //     return back()
+        //         ->with('status', ['success' => 0,
+        //             'msg' => __('messages.transaction_edit_not_allowed', ['days' => $edit_days])]);
+        // }
 
         //Check if return exist then not allowed
         if ($this->transactionUtil->isReturnExist($id)) {
@@ -622,18 +621,7 @@ class PurchaseController extends Controller
                                         })
                                         ->pluck('ref_no', 'id');
         }
-// dd($taxes,
-// $purchase,
-// $orderStatuses,
-// $business_locations,
-// $business,
-// $currency_details,
-// $default_purchase_status,
-// $customer_groups,
-// $types,
-// $shortcuts,
-// $purchase_orders,
-// $common_settings);
+
         return view('purchase.edit')
             ->with(compact(
                 'taxes',

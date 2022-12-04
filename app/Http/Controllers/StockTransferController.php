@@ -63,6 +63,7 @@ class StockTransferController extends Controller
         $statuses = $this->stockTransferStatuses();
         $business_id = request()->session()->get('user.business_id');
 
+        
         $business_locations = BusinessLocation::forDropdown($business_id, false, false, true, false);
         $business_locations_2 = BusinessLocation::forDropdown($business_id, false, false, true, false);
 
@@ -157,10 +158,10 @@ class StockTransferController extends Controller
                         <button type="button" data-href="' . action("StockTransferController@destroy", [$row->id]) . '" class="btn btn-danger btn-xs delete_stock_transfer"><i class="fa fa-trash" aria-hidden="true"></i> ' . __("messages.delete") . '</button>';
                     }
 
-                    // if ($row->status != 'final') {
+                    if (auth()->user()->getRoleNameAttribute() == 'Admin' || ($row->status != 'final' && auth()->user()->id == $row->created_by)) {
                         $html .= '&nbsp;
                         <a href="' . action("StockTransferController@edit", [$row->id]) . '" class="btn btn-primary btn-xs"><i class="fa fa-edit" aria-hidden="true"></i> ' . __("messages.edit") . '</a>';
-                    // }
+                    }
 
                     return $html;
                 })
@@ -212,10 +213,11 @@ class StockTransferController extends Controller
 
         $business_locations = BusinessLocation::forDropdown($business_id);
         $business_locations_2 = BusinessLocation::forDropdown($business_id, false, false, true, false);
+
         $statuses = $this->stockTransferStatuses();
 
         return view('stock_transfer.create')
-                ->with(compact('business_locations', 'business_locations_2', 'statuses'));
+                ->with(compact('business_locations', 'statuses', 'business_locations_2'));
     }
 
     private function stockTransferStatuses()
@@ -801,7 +803,7 @@ class StockTransferController extends Controller
                 $lot_n_exp_enabled = true;
             }
 
-// dd($sell_transfer);
+
             $output = ['success' => 1, 'receipt' => [], 'print_title' => $sell_transfer->ref_no];
             $output['receipt']['html_content'] = view('stock_transfer.print', compact('sell_transfer', 'location_details', 'lot_n_exp_enabled','output_taxes','print_format'))->render();
         } catch (\Exception $e) {
@@ -834,14 +836,12 @@ class StockTransferController extends Controller
                 // ->where('status', '!=', 'final')
                 ->with(['sell_lines'])
                 ->findOrFail($id);
-
         $purchase_transfer = Transaction::where('business_id', 
                 $business_id)
                 ->where('transfer_parent_id', $id)
                 // ->where('status', '!=', 'received')
                 ->where('type', 'purchase_transfer')
                 ->first();
-
         $products = [];
         foreach ($sell_transfer->sell_lines as $sell_line) {
             $product = $this->productUtil->getDetailsFromVariation($sell_line->variation_id, $business_id, $sell_transfer->location_id);
@@ -863,6 +863,8 @@ class StockTransferController extends Controller
 
             $products[] = $product;
         }
+
+
 
         return view('stock_transfer.edit')
                 ->with(compact('sell_transfer', 'purchase_transfer', 'business_locations', 'statuses', 'products'));

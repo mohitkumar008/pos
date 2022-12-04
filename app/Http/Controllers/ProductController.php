@@ -150,10 +150,10 @@ class ProductController extends Controller
             }
 
             $tax_id = request()->get('tax_id', null);
-            if (!empty($tax_id) && $tax_id != 'none') {
+            if (!empty($tax_id) && $tax_id != '0') {
                 $products->where('products.tax', $tax_id);
             }
-            if ($tax_id == 'none') {
+            if ($tax_id == '0') {
                 $products->whereNull('products.tax');
             }
 
@@ -191,8 +191,8 @@ class ProductController extends Controller
                 )
                 ->editColumn('category', function ($row) {
                     $data = '';
-                    if (!empty($row->sub_category)) {
-                        $data = "--" . $row->sub_category;
+                    if (!empty($row->category)) {
+                        $data = $row->category;
                     }
 
                     return $data;
@@ -686,7 +686,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids','type']);
+            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'type', 'tax_type', 'weight', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_description', 'sub_unit_ids']);
 
             DB::beginTransaction();
 
@@ -2221,7 +2221,7 @@ class ProductController extends Controller
             $variation_id = request()->input('variation_id');
             // dd($stock_details,$stock_history);
             return view('product.stock_history_details_ajax')
-                ->with(compact('stock_details', 'stock_history','product','variation_id'));
+                ->with(compact('stock_details', 'stock_history', 'product', 'variation_id'));
         }
         $business_locations = BusinessLocation::forDropdown($business_id, false, false, true, true);
 
@@ -2386,7 +2386,7 @@ class ProductController extends Controller
                         $variation->sell_price_inc_tax = (($variation->default_sell_price * $tax_info->amount) / 100) + $variation->default_sell_price;
                         $variation->save();
                     }
-                }else{
+                } else {
                     $error_msg = 'Error';
                     throw new \Exception($error_msg);
                 }
@@ -2454,6 +2454,7 @@ class ProductController extends Controller
 
                 $is_valid = true;
                 $error_msg = '';
+
                 $skuErrArray = [];
                 foreach ($imported_data as $key => $value) {
                     $row_no = $key + 1;
@@ -2483,11 +2484,10 @@ class ProductController extends Controller
                             }
                         }
                     }
-                }else{
+                } else {
                     $error_msg = 'Error';
                     throw new \Exception($error_msg);
                 }
-                
                 // Add new brarcodes to selected location
                 $this->productUtil->updateProductLocations($business_id, $productIdArr, $location_id, 'add');
             }

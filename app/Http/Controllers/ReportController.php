@@ -3768,6 +3768,7 @@ class ReportController extends Controller
     public function activityLog()
     {
         $business_id = request()->session()->get('user.business_id');
+        $business_locations = BusinessLocation::where('business_id',$business_id)->where('is_active',1)->pluck('name','id');
         $transaction_types = [
             'contact' => __('report.contact'),
             'user' => __('report.user'),
@@ -3779,7 +3780,9 @@ class ReportController extends Controller
             'purchase_return' => __('lang_v1.purchase_return'),
             'sell_transfer' => __('lang_v1.stock_transfer'),
             'stock_adjustment' => __('stock_adjustment.stock_adjustment'),
-            'expense' => __('lang_v1.expense')
+            'expense' => __('lang_v1.expense'),
+            'product_added_to_location' => __('lang_v1.product_added_to_location'),
+            'product_removed_from_location' => __('lang_v1.product_removed_from_location')
         ];
 
         if (request()->ajax()) {
@@ -3802,6 +3805,11 @@ class ReportController extends Controller
                 $activities->where('causer_id', request()->user_id);
             }
 
+            if (!empty(request()->location_name)) {
+                
+                $activities->where('properties','like' ,'%'.request()->location_name.'%');
+            }
+
             $subject_type = request()->subject_type;
             if (!empty($subject_type)) {
                 if ($subject_type == 'contact') {
@@ -3814,7 +3822,10 @@ class ReportController extends Controller
                     $activities->whereHasMorph('subject', Transaction::class, function($q) use($subject_type){
                         $q->where('type', $subject_type);
                     });
+                } else if(in_array($subject_type, ['product_added_to_location', 'product_removed_from_location'])) {
+                    $activities->where('subject_type', 'App\Product')->where('description',$subject_type);
                 }
+                
             }
 
             $sell_statuses = Transaction::sell_statuses();
@@ -3905,7 +3916,7 @@ class ReportController extends Controller
 
         $users = User::allUsersDropdown($business_id, false);
 
-        return view('report.activity_log')->with(compact('users', 'transaction_types'));
+        return view('report.activity_log')->with(compact('users', 'transaction_types','business_locations'));
 
                            
     }
