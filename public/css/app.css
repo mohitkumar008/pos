@@ -1286,7 +1286,3 @@ table.table-text-center th {
   width: 15% !important;
 }
 
-#wallet-options, #advance_details{
-  display: flex;
-  justify-content: space-between;
-}

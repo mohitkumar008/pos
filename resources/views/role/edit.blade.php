@@ -364,6 +364,14 @@
           <div class="col-md-12">
             <div class="checkbox">
               <label>
+                {!! Form::checkbox('permissions[]', 'product.price.update', in_array('product.price.update', $role_permissions), 
+                [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.product_price_update' ) }}
+              </label>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="checkbox">
+              <label>
                 {!! Form::checkbox('permissions[]', 'view_purchase_price', in_array('view_purchase_price', $role_permissions),['class' => 'input-icheck']); !!}
                 {{ __('lang_v1.view_purchase_price') }}
               </label>

@@ -112,7 +112,7 @@ class ImportOpeningStockController extends Controller
                                 ->join('products AS P', 'variations.product_id', '=', 'P.id')
                                 ->leftjoin('tax_rates AS TR', 'P.tax', 'TR.id')
                                 ->where('P.business_id', $business_id)
-                                ->select(['P.id', 'variations.id as variation_id',
+                                ->select(['P.id', 'variations.id as variation_id','variations.default_purchase_price',
                                     'P.enable_stock', 'TR.amount as tax_percent',
                                     'TR.id as tax_id'])
                                 ->first();
@@ -169,9 +169,10 @@ class ImportOpeningStockController extends Controller
                     if (!empty(trim($value[3]))) {
                         $unit_cost_before_tax = trim($value[3]);
                     } else {
-                        $is_valid = false;
-                        $error_msg = "Invalid UNIT COST in row no. $row_no";
-                        break;
+                        // $is_valid = false;
+                        // $error_msg = "Invalid UNIT COST in row no. $row_no";
+                        // break;
+                        $unit_cost_before_tax = $product_info->default_purchase_price;
                     }
 
                     if (!is_numeric(trim($value[2]))) {

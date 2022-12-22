@@ -60,7 +60,7 @@ $custom_labels = json_decode(session('business.custom_labels'), true);
             <div class="form-group">
                 {!! Form::label('ref_no', __('purchase.ref_no').':') !!}
                 @show_tooltip(__('lang_v1.leave_empty_to_autogenerate'))
-                {!! Form::text('ref_no', null, ['class' => 'form-control']); !!}
+                {!! Form::text('ref_no', null, ['class' => 'form-control','required']); !!}
             </div>
         </div>
         <div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
@@ -134,12 +134,12 @@ $custom_labels = json_decode(session('business.custom_labels'), true);
         <div class="col-sm-3">
             <div class="form-group">
                 {!! Form::label('document', __('purchase.attach_document') . ':') !!}
-                {!! Form::file('document', ['id' => 'upload_document', 'accept' => implode(',', array_keys(config('constants.document_upload_mimes_types')))]); !!}
-                <p class="help-block">
-                    @lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])
-                    @includeIf('components.document_help_text')
-                </p>
+                {!! Form::file('document', ['id' => 'upload_document', 'accept' => implode(',', array_keys(config('constants.document_upload_mimes_types'))), 'required']); !!}
             </div>
+            <p class="help-block">
+                @lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])
+                @includeIf('components.document_help_text')
+            </p>
         </div>
     </div>
     <div class="row">

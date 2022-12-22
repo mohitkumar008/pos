@@ -467,7 +467,7 @@ class ProductUtil extends Util
                 })
                 ->where('p.business_id', $business_id)
                 ->where('variations.id', $variation_id);
-
+                
         //Add condition for check of quantity. (if stock is not enabled or qty_available > 0)
         // if ($check_qty) {
         //     $query->where(function ($query) use ($location_id) {
@@ -475,6 +475,7 @@ class ProductUtil extends Util
         //             ->orWhere('vld.qty_available', '>', 0);
         //     });
         // }
+        
         if (!empty($location_id) && $check_qty) {
             //Check for enable stock, if enabled check for location id.
             $query->where(function ($query) use ($location_id) {
@@ -482,8 +483,6 @@ class ProductUtil extends Util
                             ->orWhere('vld.location_id', $location_id);
             });
         }
-        // dd($query->get());
-                
         
         $product = $query->select(
             DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, 
@@ -516,8 +515,7 @@ class ProductUtil extends Util
                         variation_id=variations.id ORDER BY id DESC LIMIT 1) as last_purchased_price")
         )
         ->firstOrFail();
-//         ->toSql();
-// dd($product);
+
         if ($product->product_type == 'combo') {
             if ($check_qty) {
                 $product->qty_available = $this->calculateComboQuantity($location_id, $product->combo_variations);
@@ -1535,51 +1533,6 @@ class ProductUtil extends Util
         }
              
         return $discount;
-    }
-
-    public function getProductAllDiscount($product, $business_id, $location_id, $is_cg = false, $price_group = null, $variation_id = null)
-    {
-        $now = \Carbon::now()->toDateTimeString();
-
-        //Search if both category and brand matches
-        $query = Discount::where('business_id', $business_id)
-                    ->where('location_id', $location_id)
-                    ->where('is_active', 1)
-                    ->where('starts_at', '<=', $now)
-                    ->where('ends_at', '>=', $now)
-                    ->where( function($q) use($product, $variation_id) {
-                            $q->where( function($sub_q) use($product){
-                                $sub_q->where('brand_id', $product->brand_id)
-                                ->where('category_id', $product->category_id);
-                            })
-                            ->orWhere(function($sub_q) use($product){
-                                $sub_q->whereRaw('(brand_id="' . $product->brand_id .'" AND category_id IS NULL)')
-                                ->orWhereRaw('(category_id="' . $product->category_id .'" AND brand_id IS NULL)');
-                            });
-
-                            if (!empty($variation_id)) {
-                                $q->orWhereHas('variations', function($sub_q) use ($variation_id){
-                                    $sub_q->where('variation_id', $variation_id);
-                                });
-                            }
-                    })
-                    ->orderBy('priority', 'desc')
-                    ->latest();
-        if ($is_cg) {
-            $query->where('applicable_in_cg', 1);
-        }
-        if (!is_null($price_group)) {
-            $query->where( function($q) use($price_group){
-                $q->whereNull('spg')
-                    ->orWhere('spg', (string)$price_group);
-            });
-        } else {
-            $query->whereNull('spg');
-        }
-
-        $all_discount = $query->get()->pluck('name', 'id');
-
-        return $all_discount;
     }
 
     /**

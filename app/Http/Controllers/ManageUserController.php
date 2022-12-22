@@ -45,7 +45,7 @@ class ManageUserController extends Controller
         }
         $business_locations = BusinessLocation::forDropdown($business_id);
         $business_locations->prepend(__('report.all_locations'), 'all');
-
+        
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
             $user_id = request()->session()->get('user.id');
@@ -55,7 +55,7 @@ class ManageUserController extends Controller
                         ->where('is_cmmsn_agnt', 0)
                         ->select(['id', 'username',
                             DB::raw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"), 'email', 'allow_login']);
-
+                            
             if (!empty(request()->role)) {
                 $role = Role::find(request()->role);
                 $users->role($role->name);
@@ -68,6 +68,7 @@ class ManageUserController extends Controller
                     $users->permission('location.'.request()->location_id);
                 }
             }
+
 
             return Datatables::of($users)
                 ->editColumn('username', '{{$username}} @if(empty($allow_login)) <span class="label bg-gray">@lang("lang_v1.login_not_allowed")</span>@endif')

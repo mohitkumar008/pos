@@ -45,7 +45,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-sm-4">
             <div class="form-group">
                 {!! Form::label('code_1', __('business.cin_number') . ':') !!}

@@ -53,7 +53,7 @@ class TaxRate extends Model
 
         //Prepend none
         if ($prepend_none) {
-            $tax_rates = $tax_rates->prepend(__('lang_v1.none'), 'none');
+            $tax_rates = $tax_rates->prepend(__('lang_v1.none'), '0');
         }
 
         //Add tax attributes

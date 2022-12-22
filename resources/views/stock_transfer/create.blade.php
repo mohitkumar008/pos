@@ -70,27 +70,7 @@
     </div>
     <!--box end-->
 
-    <div class="row">
-        <div class="col-sm-12">
-            @component('components.widget', ['class' => 'box box-solid'])
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            {!! Form::label('stock_transfer_csv', __( 'product.file_to_import' ) . ':') !!}
-                            @show_tooltip(__('lang_v1.tooltip_import_opening_stock'))
-                            {!! Form::file('stock_transfer_csv', ['id' => 'stock_transfer_csv','disabled']); !!}
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <br>
-                        <a href="{{ asset('files/import_stock_transfer_csv_template.xls') }}" class="btn btn-success" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
-                    </div>
-                </div>
-            </div>
-            @endcomponent
-        </div>
-    </div>
+  
     {{-- <div class="row">
         <div class="col-sm-12">
             @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.instructions')])
@@ -133,63 +113,69 @@
         </div>
     </div> --}}
 
-    <div class="box box-solid">
-        <div class="box-header">
-            <h3 class="box-title">{{ __('stock_adjustment.search_products') }}</h3>
-        </div>
-        <div class="box-body">
-            <div class="row">
-                <div class="col-sm-8 col-sm-offset-2">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-search"></i>
-                            </span>
-                            {!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product_for_srock_adjustment', 'placeholder' => __('stock_adjustment.search_product'), 'disabled']); !!}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-10 col-sm-offset-1">
-                    <input type="hidden" id="product_row_index" value="0">
-                    <input type="hidden" id="total_amount" name="final_total" value="0">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-condensed" id="stock_adjustment_product_table">
-                            <thead>
-                                <tr>
-                                    <th class="col-sm-4 text-center">
-                                        @lang('sale.product')
-                                    </th>
-                                    <th class="col-sm-2 text-center">
-                                        @lang('sale.qty')
-                                    </th>
-                                    <th class="col-sm-2 text-center">
-                                        @lang('sale.unit_price')
-                                    </th>
-                                    <th class="col-sm-2 text-center">
-                                        @lang('sale.subtotal')
-                                    </th>
-                                    <th class="col-sm-2 text-center"><i class="fa fa-trash" aria-hidden="true"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                            <tfoot>
-                                <tr class="text-center">
-                                    <td colspan="3"></td>
-                                    <td>
-                                        <div class="pull-right"><b>@lang('stock_adjustment.total_amount'):</b> <span id="total_adjustment">0.00</span></div>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--box end-->
+<div class="box box-solid">
+		<div class="box-header">
+        	<h3 class="box-title">{{ __('stock_adjustment.search_products') }}</h3>
+       	</div>
+		<div class="box-body">
+			<div class="row">
+				<div class="col-sm-2 text-center  col-sm-offset-1">
+					<button type="button" class="btn btn-primary btn-flat" data-toggle="modal" data-target="#import_stock_transfer_products_modal">@lang('product.import_products')</button>
+				</div>
+				<div class="col-sm-8">
+					<div class="form-group">
+						<div class="input-group">
+							<span class="input-group-addon">
+								<i class="fa fa-search"></i>
+							</span>
+							{!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product_for_srock_adjustment', 'placeholder' => __('stock_adjustment.search_product'), 'disabled']); !!}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-10 col-sm-offset-1">
+					<input type="hidden" id="product_row_index" value="0">
+					<input type="hidden" id="total_amount" name="final_total" value="0">
+					<div class="table-responsive">
+					<table class="table table-bordered table-striped table-condensed" 
+					id="stock_adjustment_product_table">
+						<thead>
+							<tr>
+								<th class="col-sm-1 text-center">	
+									S.No
+								</th>
+								<th class="col-sm-4 text-center">	
+									@lang('sale.product')
+								</th>
+								<th class="col-sm-2 text-center">
+									@lang('sale.qty')
+								</th>
+								<th class="col-sm-2 text-center">
+									@lang('sale.unit_price')
+								</th>
+								<th class="col-sm-2 text-center">
+									@lang('sale.subtotal')
+								</th>
+								<th class="col-sm-1 text-center"><i class="fa fa-trash" aria-hidden="true"></i></th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+						<tfoot>
+							<tr class="text-center">
+								<td colspan="2"></td>
+								<td><div class="pull-right"><b>@lang('sale.total_qty'):</b> <span id="total_qty">0.00</span></div></td>
+								<td></td>
+								<td><div class="pull-right"><b>@lang('sale.total'):</b> <span id="total_adjustment">0.00</span></div></td>
+							</tr>
+						</tfoot>
+					</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> <!--box end-->
     <div class="box box-solid">
         <div class="box-body">
             <div class="row">
@@ -217,6 +203,7 @@
     <!--box end-->
     {!! Form::close() !!}
 </section>
+@include('stock_transfer.partials.import_stock_transfer_products_modal')
 @stop
 @section('javascript')
 <script src="{{ asset('js/stock_transfer.js?v=' . $asset_v) }}"></script>

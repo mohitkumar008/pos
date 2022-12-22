@@ -307,7 +307,7 @@
         <div class="col-sm-4 @if(!session('business.enable_price_tax')) hide @endif">
             <div class="form-group">
                 {!! Form::label('tax_type', __('product.selling_price_tax_type') . ':*') !!}
-                {!! Form::select('tax_type', ['inclusive' => __('product.inclusive'), 'exclusive' => __('product.exclusive')], !empty($duplicate_product->tax_type) ? $duplicate_product->tax_type : 'inclusive',
+                {!! Form::select('tax_type', ['inclusive' => __('product.inclusive')], !empty($duplicate_product->tax_type) ? $duplicate_product->tax_type : 'inclusive',
                 ['class' => 'form-control select2', 'required']); !!}
             </div>
         </div>

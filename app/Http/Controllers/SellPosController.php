@@ -1567,17 +1567,16 @@ class SellPosController extends Controller
             $waiters_enabled = true;
             $waiters = $this->productUtil->serviceStaffDropdown($business_id, $location_id);
         }
-        
+
         if (request()->get('type') == 'sell-return') {
             $output['html_content'] =  view('sell_return.partials.product_row')
-            ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'sub_units'))
-            ->render();
+                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'sub_units'))
+                        ->render();
         } else {
             $is_cg = !empty($cg->id) ? true : false;
             
             $discount = $this->productUtil->getProductDiscount($product, $business_id, $location_id, $is_cg, $price_group, $variation_id);
-            $all_discount = $this->productUtil->getProductAllDiscount($product, $business_id, $location_id, $is_cg, $price_group, $variation_id);
-            // dd($all_discount);
+            
             if ($is_direct_sell) {
                 $edit_discount = auth()->user()->can('edit_product_discount_from_sale_screen');
                 $edit_price = auth()->user()->can('edit_product_price_from_sale_screen');
@@ -1588,17 +1587,11 @@ class SellPosController extends Controller
 
             $is_sales_order = request()->has('is_sales_order') && request()->input('is_sales_order') == 'true' ? true : false;
             $output['html_content'] =  view('sale_pos.product_row')
-                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'business_location','sub_units', 'all_discount','discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order'))
+                        ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'business_location', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order'))
                         ->render();
         }
 
         return $output;
-    }
-
-    public function getdiscountDetails(Request $request)
-    {
-        $discount = Discount::find($request->discount);
-        return json_encode($discount);
     }
 
     /**
@@ -1670,7 +1663,6 @@ class SellPosController extends Controller
         $business_id = request()->session()->get('user.business_id');
         
         $get_wallet_options = $request->input('get_wallet_options');
-        $selected_payment_option = $request->input('selected_payment_option');
         $row_index = $request->input('row_index');
         $first_payment_type = $request->input('first_payment_type');
         $customer_id = $request->input('customer_id');
@@ -1688,15 +1680,8 @@ class SellPosController extends Controller
             unset($payment_types['custom_pay_3']);
             unset($payment_types['custom_pay_4']);
         }
-        elseif(($get_wallet_options == 'true') && $selected_payment_option){
-            foreach ($payment_types as $key => $value) {
-                if($key != $selected_payment_option){
-                    unset($payment_types[$key]);
-                }
-            }
-        }
 
-        $customer_wallet = $this->get_all_wallet_ammount($request, $customer_id); 
+        $customer_wallet = $this->get_all_wallet_ammount($customer_id); 
 
         if($customer_wallet != null){
             if($customer_wallet['product_wallet'] <= 0){
@@ -1849,12 +1834,13 @@ class SellPosController extends Controller
             $location_id = $request->get('location_id');
             $term = $request->get('term');
 
+            $check_qty = false;
             $business_id = $request->session()->get('user.business_id');
             $business = $request->session()->get('business');
             $pos_settings = empty($business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business->pos_settings, true);
             $business_location = BusinessLocation::find($location_id);
             $check_qty = ($business_location->allow_overselling == 1) ? false : true;
-            
+
             $products = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
                 ->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
                 ->leftjoin(
@@ -2945,10 +2931,8 @@ class SellPosController extends Controller
      * download pdf for given shipment
      *
      */
-    public function get_all_wallet_ammount(Request $request, $customer_id)
+    public function get_all_wallet_ammount($customer_id)
     {
-        $location_id = $request->input('location_id');
-        $payment_types = $this->productUtil->payment_types($location_id, true);
         if($customer_id){
             
             $customer = Contact::find($customer_id);
@@ -2976,12 +2960,6 @@ class SellPosController extends Controller
                 
                 $result  = json_decode($result);
                 if($result->success){
-                    $wallet_options = [];
-                    $wallet_options['custom_pay_1'] = $result->product_wallet > 0 ? $payment_types['custom_pay_1'] : "";
-                    $wallet_options['custom_pay_2'] = $result->purchase_wallet > 0 ? $payment_types['custom_pay_2'] : "";
-                    $wallet_options['custom_pay_3'] = $result->redeem_wallet > 0 ? $payment_types['custom_pay_3'] : "";
-                    $wallet_options['custom_pay_4'] = $result->armada_wallet > 0 ? $payment_types['custom_pay_4'] : "";
-                    $wallet_options = array_filter($wallet_options);
                     return [
                         'success'=>true,
                         'product_wallet'=>$result->product_wallet,
@@ -2989,7 +2967,6 @@ class SellPosController extends Controller
                         'redeem_wallet'=>$result->redeem_wallet,
                         'armada_wallet'=>$result->armada_wallet,
                         'member_id'=>$customer->custom_field1,
-                        'wallet_options'=>$wallet_options,
                     ];
                 }
                 

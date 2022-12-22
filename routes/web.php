@@ -148,7 +148,6 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         Route::get('/sells/pos/get-recent-transactions', 'SellPosController@getRecentTransactions');
         Route::get('/sells/pos/get-product-suggestion', 'SellPosController@getProductSuggestion');
         Route::get('/sells/pos/get-featured-products/{location_id}', 'SellPosController@getFeaturedProducts');
-        Route::post('/sells/pos/get_discount_details', 'SellPosController@getdiscountDetails');
         Route::post('/get_all_wallet_ammount/{customer_id}', 'SellPosController@get_all_wallet_ammount');
         Route::resource('pos', 'SellPosController');
         
@@ -271,6 +270,7 @@ Route::middleware(['MeasureResponseTime'])->group(function () {
         //Stock Transfer
         Route::get('stock-transfers/print/{id}', 'StockTransferController@printInvoice');
         Route::post('stock-transfers/update-status/{id}', 'StockTransferController@updateStatus');
+        Route::post('/import-stock-transfer-products', 'StockTransferController@uploadStockTransferProducts');
         Route::resource('stock-transfers', 'StockTransferController');
         
         Route::get('/opening-stock/add/{product_id}', 'OpeningStockController@add');

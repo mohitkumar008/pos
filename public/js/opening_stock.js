@@ -52,6 +52,7 @@ $('#opening_stock_modal')
 $(document).on('click', 'button#add_opening_stock_btn', function(e) {
     e.preventDefault();
     var btn = $(this);
+    btn.attr('disabled', 'disabled');
     var data = $('form#add_opening_stock_form').serialize();
 
     $.ajax({

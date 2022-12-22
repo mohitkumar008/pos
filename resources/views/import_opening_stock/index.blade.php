@@ -84,7 +84,7 @@
                 </tr>
                 <tr>
                     <td>4</td>
-                    <td>@lang('purchase.unit_cost_before_tax') <small class="text-muted">(@lang('lang_v1.required'))</small></td>
+                    <td>@lang('purchase.unit_cost_before_tax') <small class="text-muted">(@lang('lang_v1.optional'))</small></td>
                     <td></td>
                 </tr>
                 <tr>

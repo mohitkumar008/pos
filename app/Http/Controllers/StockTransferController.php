@@ -225,7 +225,7 @@ class StockTransferController extends Controller
         return [
             'pending' => __('lang_v1.pending'),
             'in_transit' => __('lang_v1.in_transit'),
-            'completed' => __('restaurant.completed')
+            'completed' => 'Received'
         ];
     }
 
@@ -732,7 +732,7 @@ class StockTransferController extends Controller
     {
         try {
             $business_id = request()->session()->get('user.business_id');
-            $print_format = $request->type;            
+            $print_format = $request->type;
             $sell_transfer = Transaction::where('business_id', $business_id)
                                 ->where('id', $id)
                                 ->where('type', 'sell_transfer')
@@ -1158,6 +1158,109 @@ class StockTransferController extends Controller
                         ];
         }
 
+        return $output;
+    }
+    
+    public function uploadStockTransferProducts(Request $request)
+    {
+        try {
+            //Set maximum php execution time
+            ini_set('max_execution_time', 0);
+            ini_set('memory_limit', -1);
+
+            $file = $request->file('stock_transfer_csv');
+
+            $parsed_array = Excel::toArray([], $file);
+            //Remove header row
+            $imported_data = array_splice($parsed_array[0], 1);
+
+            $business_id = $request->session()->get('user.business_id');
+            $location_id = $request->input('location_id');
+            $row_count = $request->input('row_count');
+            $formatted_data = [];
+            $row_index = 0;
+            $error_msg = '';
+            $errorArr = [];
+            foreach ($imported_data as $key => $value) {
+                $row_index = $key + 1;
+                $temp_array = [];
+                
+                if (!empty($value[0])) {
+                    $variation = Variation::where('sub_sku', trim($value[0]))
+                                        ->with([
+                                            'product_variation',
+                                            'variation_location_details' => 
+                                                function($q) use ($location_id) {
+                                                    $q->where('location_id', $location_id);
+                                                }
+                                        ])->first();
+
+                    if (empty($variation)) {
+                        $errorArr[] = __('lang_v1.product_not_found_exception', ['row' => $row_index, 'sku' => $value[0]]);
+                    }
+
+                    if (!empty($variation)) {
+                        $product = $this->productUtil->getDetailsFromVariation($variation->id, $business_id, $location_id);
+                        $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available);
+            
+                        //Get lot number dropdown if enabled
+                        $lot_numbers = [];
+                        if (request()->session()->get('business.enable_lot_number') == 1 || request()->session()->get('business.enable_product_expiry') == 1) {
+                            $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($variation->id, $business_id, $location_id, true);
+                            foreach ($lot_number_obj as $lot_number) {
+                                $lot_number->qty_formated = $this->productUtil->num_f($lot_number->qty_available);
+                                $lot_numbers[] = $lot_number;
+                            }
+                        }
+                        $product->lot_numbers = $lot_numbers;
+            
+                        $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, false, $product->id);
+
+                        if (empty($product)) {
+                            $errorArr[] = __('lang_v1.product_not_found_exception', ['row' => $row_index, 'sku' => $value[0]]);
+                            
+                        }
+    
+                        $temp_array['product'] = $product;
+        
+                        $temp_array['sub_units'] = $sub_units;
+
+                        if (!empty($value[1]) && !empty($product->formatted_qty_available)) {
+                            if($value[1] > $product->formatted_qty_available){
+                                $errorArr[] = $value[1]." quantity not available for ".$value[0];
+                            }else{
+                                $product->quantity_ordered = $value[1];
+                            }
+                        } else {
+                            $errorArr[] = __('lang_v1.quantity_required', ['row' => $row_index]);
+                            
+                        }
+                    }
+                    
+                } else {
+                    $errorArr[] = __('lang_v1.product_not_found_exception', ['row' => $row_index, 'sku' => $value[0]]);
+                    
+                }
+                $formatted_data[] = $temp_array;
+                
+            }
+            if (count($errorArr) != 0) {
+                $error_msg = 'Error';
+                throw new \Exception($error_msg);
+            }
+            $output = ['success' => 1,
+                            'msg' =>'File uploaded successfully',
+                            'html' => view('stock_transfer.partials.imported_stock_transfer_product_rows')->with(compact('formatted_data', 'row_count'))->render()
+                        ];
+       } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            
+            $output = ['success' => 0,
+                            'msg' => $e->getMessage(),
+                            'errorArr' => $errorArr,
+                        ];
+        }
         return $output;
     }
 }

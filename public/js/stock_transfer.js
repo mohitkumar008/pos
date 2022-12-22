@@ -1,3 +1,4 @@
+ Dropzone.autoDiscover = false;
 $(document).ready(function () {
     //Add products
     if ($('#search_product_for_srock_adjustment').length > 0 && !$('#stock_transfer_csv').val()) {
@@ -111,18 +112,16 @@ $(document).ready(function () {
         },
         'Please select different location'
     );
-    $('form#stock_transfer_form').validate({
+
+    $('form#stock_transfer_form').validate(/*{
         rules: {
-            fieldname: {
-               min: 1
+            transfer_location_id: {
+                notEqual: function () {
+                    return $('select#location_id').val();
+                },
             },
-            messages: {
-                fieldname: {
-                    min: "Value must be greater than 0"
-                }
-            }
-        }
-    });
+        },
+    }*/);
 
     // $('#save_stock_transfer').click(function (e) {
     //     e.preventDefault();
@@ -156,7 +155,7 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         aaSorting: [[0, 'desc']],
-        ajax: '/stock-transfers',
+        // ajax: '/stock-transfers',
         "ajax": {
             "url": "/stock-transfers",
             "data": function ( d ) {
@@ -238,6 +237,67 @@ $(document).ready(function () {
         });
     });
 
+  // Import stock transfer products
+    if ($("div#import_transfer_product_dz").length) {
+        $("div#import_transfer_product_dz").dropzone({
+            url: base_path + '/import-stock-transfer-products',
+            paramName: 'stock_transfer_csv',
+            autoProcessQueue: false,
+            addRemoveLinks: true,
+            uploadMultiple: false,
+            maxFiles:1,
+            init: function() {
+                this.on("addedfile", function(file) {
+                    $('#file_import_error').html('');
+                    if ($('#location_id').val() === '') {
+                        this.removeFile(file);
+                        toastr.error('select location first');
+                    }
+                });
+                this.on("maxfilesexceeded", function(file) {
+                    this.removeAllFiles();
+                    this.addFile(file);
+                });
+                this.on("sending", function(file, xhr, formData){
+                    formData.append("location_id", $('#location_id').val());
+                    formData.append("row_count", $('#product_row_index').val());
+                    toastr.info('Please wait while processing');
+                });
+            },   
+            acceptedFiles: '.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(file, response) {
+                if(response.success == 0) {
+                    var err = `
+                    <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <strong><span>Error :- </span></strong>
+                    <ul>`
+                    $.each(response.errorArr, function( index, value ) {
+                        err += `<li>${value}</li>`;
+                    });
+                    err += `</ul></div>`;
+                    this.removeAllFiles();
+                    $('#file_import_error').html(err);
+                }else{
+                    $('table#stock_adjustment_product_table tbody').append(response.html);
+                    $('#product_row_index').val($('table#stock_adjustment_product_table tbody').find('tr').length);
+                    $('#import_stock_transfer_products_modal').modal('hide');
+                    update_table_total();
+                    this.removeAllFiles();
+
+                }
+            },
+        });
+    }
+   
+    $(document).on('click', '#import_stock_transfer_products', function(){
+        var productDz = Dropzone.forElement("#import_transfer_product_dz");
+        productDz.processQueue();
+    })
+    
     //Delete Stock Transfer
     $(document).on('click', 'button.delete_stock_transfer', function () {
         swal({
@@ -266,13 +326,19 @@ $(document).ready(function () {
     });
 });
 
+function addSerialNumber(table) {
+    $(table).each(function(index) {
+        $(this).find('td:nth-child(1)').html(index+1);
+    });
+};
+
 function stock_transfer_product_row(variation_id) {
     var row_index = parseInt($('#product_row_index').val());
     var location_id = $('select#location_id').val();
     $.ajax({
         method: 'POST',
         url: '/stock-adjustments/get_product_row',
-        data: { row_index: row_index, variation_id: variation_id, location_id: location_id },
+        data: { row_index: row_index, variation_id: variation_id, location_id: location_id, type: 'stock_transfer' },
         dataType: 'html',
         success: function (result) {
             $('table#stock_adjustment_product_table tbody').append(result);
@@ -284,14 +350,30 @@ function stock_transfer_product_row(variation_id) {
 
 function update_table_total() {
     var table_total = 0;
-    $('table#stock_adjustment_product_table tbody tr').each(function () {
+    var total_total_qty = 0;
+
+    $('table#stock_adjustment_product_table tbody tr').each(function() {
         var this_total = parseFloat(__read_number($(this).find('input.product_line_total')));
+        var this_total_qty = parseFloat(__read_number($(this).find('input.product_quantity')));
         if (this_total) {
             table_total += this_total;
         }
+        if (this_total_qty) {
+            total_total_qty += this_total_qty;
+        }
     });
-    $('input#total_amount').val(table_total);
+    addSerialNumber('table#stock_adjustment_product_table tbody tr');
+
     $('span#total_adjustment').text(__number_f(table_total));
+    $('span#total_qty').text(__number_f(total_total_qty));
+
+    if ($('input#shipping_charges').length) {
+        var shipping_charges = __read_number($('input#shipping_charges'));
+        table_total += shipping_charges;
+    }
+
+    $('span#final_total_text').text(__number_f(table_total));
+    $('input#total_amount').val(table_total);
 }
 
 function update_table_row(tr) {

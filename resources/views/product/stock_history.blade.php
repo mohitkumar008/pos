@@ -78,7 +78,7 @@
       $(document).on('dblclick', '#current_stock', function(){
             current_stock_html = $(this).html()
             $(this).html('')
-            var new_quantity = $("#new_quantity_0").text()
+            var new_quantity = $("#new_quantity_0").text().replaceAll(",", "")
             $(this).html('<input type="text" name="current_qty" id="current_qty" disabled value="'+new_quantity+'">')
             $("#current_stock_input").html('<button class="btn btn-sm btn-primary update_current_stock">Save</button><button class="btn btn-sm btn-secondary cancel_current_stock">Cancel</button>')
 

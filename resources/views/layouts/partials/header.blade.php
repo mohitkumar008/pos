@@ -2,9 +2,8 @@
 <!-- Main Header -->
   <header class="main-header no-print">
     <a href="{{route('home')}}" class="logo">
-      
       <span class="logo-lg"><img src="{{url('uploads/logo.png')}}" alt=""> </span> 
-      {{-- <span class="logo-lg">{{ Session::get('business.name') }} <i class="fa fa-circle text-success" id="online_indicator"></i></span>  --}}
+      <!--<span class="logo-lg">{{ Session::get('business.name') }} <i class="fa fa-circle text-success" id="online_indicator"></i></span> -->
 
     </a>
 

@@ -53,13 +53,13 @@
         <div class="col-md-3" id="location_filter">
             <div class="form-group">
                 {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
-                {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                {!! Form::select('location_id', $business_locations, (!empty(session('filter.location_id')) ? session('filter.location_id') : null), ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
             </div>
         </div>
         <div class="col-md-3">
             <br>
             <div class="form-group">
-                {!! Form::select('active_state', ['active' => __('business.is_active'), 'inactive' => __('lang_v1.inactive'), 'pending' => __('lang_v1.pending')], null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'active_state', 'placeholder' => __('lang_v1.all')]); !!}
+                {!! Form::select('active_state', ['active' => __('business.is_active'), 'inactive' => __('lang_v1.inactive'), 'pending' => __('lang_v1.pending')], (!empty(session('filter.active_state')) ? session('filter.active_state') : null), ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'active_state', 'placeholder' => __('lang_v1.all')]); !!}
             </div>
         </div>
 

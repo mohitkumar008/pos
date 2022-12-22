@@ -2070,6 +2070,18 @@ class TransactionUtil extends Util
     public function getInvoiceNumber($business_id, $status, $location_id, $invoice_scheme_id = null, $sale_type = null)
     {
         if ($status == 'final') {
+            /*if (empty($invoice_scheme_id)) {
+                $scheme = $this->getInvoiceScheme($business_id, $location_id);
+            } else {
+                $scheme = InvoiceScheme::where('business_id', $business_id)
+                                        ->find($invoice_scheme_id);
+            }
+            
+            if ($scheme->scheme_type == 'blank') {
+                $prefix = $scheme->prefix;
+            } else {
+                $prefix = $scheme->prefix . date('Y') . config('constants.invoice_scheme_separator');
+            }*/
             $businnes_location = BusinessLocation::find($location_id);
 
             $scheme = InvoiceScheme::where('business_id', $business_id)->where('business_location_id', $location_id)->first();
@@ -2117,7 +2129,7 @@ class TransactionUtil extends Util
             return Str::random(5);
         }
     }
-
+    
     private function getPrefix($business_id, $location_id)
     {
         $location = BusinessLocation::where('business_id', $business_id)

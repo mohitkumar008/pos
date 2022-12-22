@@ -19,6 +19,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use App\System;
 use Config;
+use Illuminate\Support\Facades\Session;
 
 class Util
 {
@@ -46,6 +47,12 @@ class Util
         $num = str_replace($decimal_separator, '.', $num);
 
         return (float)$num;
+    }
+    
+    public function session_filter($key, $value)
+    {
+        Session::forget($key);
+        Session::has($key) ? Session::push($key, $value) : Session::put($key, $value);
     }
 
     /**
@@ -700,8 +707,8 @@ class Util
         }
         
         $uploaded_file_name = null;
+        
         if ($request->hasFile($file_name) && $request->file($file_name)->isValid()) {
-            
             //Check if mime type is image
             if ($file_type == 'image') {
                 if (strpos($request->$file_name->getClientMimeType(), 'image/') === false) {

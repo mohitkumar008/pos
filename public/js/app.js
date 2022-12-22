@@ -1221,7 +1221,6 @@ $(document).ready(function() {
                 if ($('#location_type').length) {
                     d.location_type = $('#location_type').val();
                 }
-
                 d = __datatable_ajax_callback(d);
             },
         },

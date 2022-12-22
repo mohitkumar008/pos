@@ -48,7 +48,6 @@ return [
     'sell.view' => 'View POS sell',
     'sell.create' => 'Add POS sell',
     'sell.update' => 'Edit POS sell',
-    'sell.update_draft' => 'Edit Draft POS sell',
     'sell.delete' => 'Delete POS sell',
 
     'purchase_n_sell_report.view' => 'View purchase & sell report',

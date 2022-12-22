@@ -38,18 +38,16 @@
                     </div>
                 </div>
             </div>
-            @if (!isset($quick_add))
-                <div class="col-md-4 mt-15">
-                    <label class="radio-inline">
-                        <input type="radio" name="contact_type_radio" id="inlineRadio1" value="individual" {{isset($quick_add) ? "checked" : ""}}>
-                        @lang('lang_v1.individual')
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="contact_type_radio" id="inlineRadio2" value="business">
-                        @lang('business.business')
-                    </label>
-                </div>
-            @endif
+            <div class="col-md-4 mt-15">
+                <label class="radio-inline">
+                    <input type="radio" name="contact_type_radio" id="inlineRadio1" value="individual">
+                    @lang('lang_v1.individual')
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="contact_type_radio" id="inlineRadio2" value="business">
+                    @lang('business.business')
+                </label>
+            </div>
             <!--<div class="col-md-4">-->
             <!--    <div class="form-group">-->
             <!--        {!! Form::label('contact_id', __('lang_v1.contact_id') . ':') !!}-->
@@ -90,25 +88,25 @@
 
             <div class="clearfix"></div>
 
-            <div class="col-md-3 individual"  style="display: {{isset($quick_add) ? "block" : "none"}};">
+            <div class="col-md-3 individual" style="display: none;">
                 <div class="form-group">
                     {!! Form::label('prefix', __( 'business.prefix' ) . ':') !!}
                     {!! Form::text('prefix', null, ['class' => 'form-control', 'placeholder' => __( 'business.prefix_placeholder' ) ]); !!}
                 </div>
             </div>
-            <div class="col-md-3 individual" style="display: {{isset($quick_add) ? "block" : "none"}};">
+            <div class="col-md-3 individual" style="display: none;">
                 <div class="form-group">
                     {!! Form::label('first_name', __( 'business.first_name' ) . ':*') !!}
                     {!! Form::text('first_name', null, ['class' => 'form-control', 'required', 'placeholder' => __( 'business.first_name' ) ]); !!}
                 </div>
             </div>
-            <div class="col-md-3 individual" style="display: {{isset($quick_add) ? "block" : "none"}};">
+            <div class="col-md-3 individual" style="display: none;">
                 <div class="form-group">
                     {!! Form::label('middle_name', __( 'lang_v1.middle_name' ) . ':') !!}
                     {!! Form::text('middle_name', null, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.middle_name' ) ]); !!}
                 </div>
             </div>
-            <div class="col-md-3 individual" style="display: {{isset($quick_add) ? "block" : "none"}};">
+            <div class="col-md-3 individual" style="display: none;">
                 <div class="form-group">
                     {!! Form::label('last_name', __( 'business.last_name' ) . ':') !!}
                     {!! Form::text('last_name', null, ['class' => 'form-control', 'placeholder' => __( 'business.last_name' ) ]); !!}

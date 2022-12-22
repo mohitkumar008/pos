@@ -3804,7 +3804,7 @@ class ReportController extends Controller
             if (!empty(request()->user_id)) {
                 $activities->where('causer_id', request()->user_id);
             }
-
+            
             if (!empty(request()->location_name)) {
                 
                 $activities->where('properties','like' ,'%'.request()->location_name.'%');

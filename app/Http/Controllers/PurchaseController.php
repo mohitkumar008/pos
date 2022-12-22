@@ -318,7 +318,7 @@ class PurchaseController extends Controller
                 'total_before_tax' => 'required',
                 'location_id' => 'required',
                 'final_total' => 'required',
-                'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
+                // 'document' => 'file|max:'. (config('constants.document_size_limit') / 1000)
             ]);
 
             $user_id = $request->session()->get('user.id');
@@ -352,8 +352,8 @@ class PurchaseController extends Controller
             $transaction_data['transaction_date'] = $this->productUtil->uf_date($transaction_data['transaction_date'], true);
 
             //upload document
+            // dd($transaction_data);
             $transaction_data['document'] = $this->transactionUtil->uploadFile($request, 'document', 'documents');
-
             $transaction_data['custom_field_1'] = $request->input('custom_field_1', null);
             $transaction_data['custom_field_2'] = $request->input('custom_field_2', null);
             $transaction_data['custom_field_3'] = $request->input('custom_field_3', null);
@@ -395,10 +395,10 @@ class PurchaseController extends Controller
             }
 
             $transaction = Transaction::create($transaction_data);
-
+            // dd($transaction);
             $purchase_lines = [];
             $purchases = $request->input('purchases');
-            
+
             $this->productUtil->createOrUpdatePurchaseLines($transaction, $purchases, $currency_details, $enable_product_editing);
 
             //Add Purchase payments
@@ -423,7 +423,7 @@ class PurchaseController extends Controller
                 $product_ids[] = $purchase['product_id'];
             }
             $this->productUtil->updateProductLocations($business_id, $product_ids, $location_id, 'add');
-
+            
             DB::commit();
             
             $output = ['success' => 1,

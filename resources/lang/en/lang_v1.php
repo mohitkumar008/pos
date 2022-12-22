@@ -1,6 +1,7 @@
 <?php
 return [
     "enable_editing_product_from_purchase" => 'Enable editing product price from purchase screen',
+    'import' => 'Import',
     'sales_commission_agent' => 'Sales Commission Agent',
     'sales_commission_agents' => 'Sales Commission Agents',
     "disable" => 'Disable',
@@ -23,6 +24,7 @@ return [
     'add_item_in_new_row' => 'Add item in new row',
     'increase_item_qty' => 'Increase item quantity if it already exists',
     'stock_transfers' => 'Stock Transfers',
+    'product_price_update' => 'Update Product Price',
     'all_stock_transfers' => 'All Stock Transfers',
     'add_stock_transfer' => 'Add Stock Transfer',
     'list_stock_transfers' => 'List Stock Transfers',
@@ -626,7 +628,6 @@ return [
     'discount_priority_help' => 'Discount with higher priority will have higher weightage, however priority will not be considered for exact matches',
     'inactive' => 'Inactive',
     'applied_discount_text' => 'Discount: <i>:discount_name</i> applied (Ends at: <i>:ends_at</i>)',
-    'applied_discount' => 'Applied Discount',
     'discount.access' => 'Add/Edit/Delete Discount',
     'product_stock_details' => 'Product Stock Details',
     'search' => 'Search',
@@ -1404,5 +1405,4 @@ return [
     'requested_qty' => 'Requested Quantity',
     'approved_qty' => 'Approved Quantity',
     'approve_success' => 'Approved successfully',
-    'select_wallet' => 'Select Wallet',
 ];

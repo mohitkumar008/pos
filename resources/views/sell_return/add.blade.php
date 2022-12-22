@@ -110,8 +110,8 @@
 						            >
 						            <input name="products[{{$loop->index}}][unit_price_inc_tax]" type="hidden" class="unit_price" value="{{@num_format($sell_line->unit_price_inc_tax)}}">
 						            <input name="products[{{$loop->index}}][sell_line_id]" type="hidden" value="{{$sell_line->id}}">
+						            <!--<input name="products[{{$loop->index}}][item_tax]" type="hidden" value="{{$sell_line->item_tax}}">-->
 						            <input name="products[{{$loop->index}}][item_tax]" type="hidden" value="0">
-						            {{-- <input name="products[{{$loop->index}}][item_tax]" type="hidden" value="{{$sell_line->item_tax}}"> --}}
 				              	</td>
 				              	<td>
 				              		<div class="return_subtotal"></div>

@@ -31,7 +31,7 @@
 								@include('sale_pos.partials.pos_form')
 
 								@include('sale_pos.partials.pos_form_totals')
-								<div id="wallet-options" class="d-flex justify-content-between"></div>
+
 								@include('sale_pos.partials.payment_modal')
 
 								@if(empty($pos_settings['disable_suspend']))

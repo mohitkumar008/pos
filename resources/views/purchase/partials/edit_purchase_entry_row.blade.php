@@ -125,11 +125,11 @@
 
             <td class="{{$hide_tax}}">
                 <div class="input-group">
-                    <select name="purchases[{{ $loop->index }}][purchase_line_tax_id]" class="form-control select2-md  purchase_line_tax_id" placeholder="'Please Select'">
+                    <select name="purchases[{{ $loop->index }}][purchase_line_tax_id]" class="form-control input-sm purchase_line_tax_id" placeholder="'Please Select'">
                         <option value="" data-tax_amount="0" @if( empty( $purchase_line->tax_id ) )
                         selected @endif >@lang('lang_v1.none')</option>
                         @foreach($taxes as $tax)
-                            <option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" @if( $purchase_line->tax_id == $tax->id) selected @endif >{{ $tax->name }} - {{ $tax->amount }}%</option>
+                            <option value="{{ $tax->id }}" data-tax_amount="{{ $tax->amount }}" @if( $purchase_line->tax_id == $tax->id) selected @endif >{{ $tax->name }}</option>
                         @endforeach
                     </select>
                     <span class="input-group-addon purchase_product_unit_tax_text">

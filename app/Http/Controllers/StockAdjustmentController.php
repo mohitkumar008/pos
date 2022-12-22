@@ -384,6 +384,7 @@ class StockAdjustmentController extends Controller
             $business_id = $request->session()->get('user.business_id');
             $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id);
             $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available);
+            $type = !empty($request->input('type')) ? $request->input('type') : 'stock_adjustment';
 
             //Get lot number dropdown if enabled
             $lot_numbers = [];
@@ -396,8 +397,14 @@ class StockAdjustmentController extends Controller
             }
             $product->lot_numbers = $lot_numbers;
             
-            return view('stock_adjustment.partials.product_table_row')
-            ->with(compact('product', 'row_index'));
+            if ($type == 'stock_transfer') {
+                // dd($product);
+                return view('stock_transfer.partials.product_table_row')
+                    ->with(compact('product', 'row_index', 'sub_units'));
+            } else {
+                return view('stock_adjustment.partials.product_table_row')
+                        ->with(compact('product', 'row_index', 'sub_units'));
+            }
         }
     }
 

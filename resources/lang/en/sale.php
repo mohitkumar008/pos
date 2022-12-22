@@ -12,6 +12,7 @@ return [
     */
 
     'sale' => 'Sell',
+    'total_qty' => 'Toatal Quantity',
     'sells' => 'Sales',
     'list_sale' => 'List Sales',
     'add_sale' => 'Add Sale',

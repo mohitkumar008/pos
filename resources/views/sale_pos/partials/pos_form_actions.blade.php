@@ -43,10 +43,6 @@
 			<!--	<i class="fas fa-credit-card" aria-hidden="true"></i> @lang('lang_v1.express_checkout_card')-->
 			<!--</button>-->
 
-			<span class="form-group">
-				{!! Form::select('payment_wallet_options', null, null, ['class' => 'form-control bg-navy btn', 'style' => 'width:auto;display:none;text-align:start;', 'id'=>'wallet_option_dropdown' , 'placeholder' => __('lang_v1.select_wallet')]); !!}
-			</span>
-
 			<button type="button" class="btn bg-navy btn-default @if(!$is_mobile) @endif btn-flat no-print @if($pos_settings['disable_pay_checkout'] != 0) hide @endif @if($is_mobile) col-xs-6 @endif" id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')"><i class="fas fa-money-check-alt" aria-hidden="true"></i> @lang('lang_v1.checkout_multi_pay') </button>
 
 			<button type="button" class="btn btn-success @if(!$is_mobile) @endif btn-flat no-print @if($pos_settings['disable_express_checkout'] != 0 || !array_key_exists('cash', $payment_types)) hide @endif pos-express-finalize @if($is_mobile) col-xs-6 @endif" data-pay_method="cash" title="@lang('tooltip.express_checkout')"> <i class="fas fa-money-bill-alt" aria-hidden="true"></i> @lang('lang_v1.express_checkout_cash')</button>
