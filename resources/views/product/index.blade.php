@@ -197,6 +197,7 @@
                         { data: 'image', name: 'products.image'  },
                         { data: 'action', name: 'action'},
                         { data: 'product', name: 'products.name'  },
+                        { data: 'unit', name: 'units.actual_name'  },
                         { data: 'product_locations', name: 'product_locations'  },
                         @can('view_purchase_price')
                             { data: 'purchase_price', name: 'max_purchase_price', searchable: false},

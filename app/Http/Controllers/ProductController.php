@@ -275,6 +275,9 @@ class ProductController extends Controller
 
                     return $product;
                 })
+                ->editColumn('unit', function ($row) {
+                    return  $row->unit ;
+                })
                 ->editColumn('image', function ($row) {
                     return '<div style="display: flex;"><img src="' . $row->image_url . '" alt="Product image" class="product-thumbnail-small"></div>';
                 })
